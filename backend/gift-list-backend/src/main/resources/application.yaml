@@ -1,0 +1,28 @@
+# Seedstack's Main configuration in this file
+# See http://seedstack.org/docs/seed/configuration for more information
+
+logging:
+  level: INFO
+
+application:
+  # Unique identifier of the application across your organization
+  id: gift-list
+  # Make sure all your application base packages are listed below
+  basePackages: [ org.scilab ]
+  dataBaseFile: F:/dev/gift-list-bdd/gift-list.db
+
+rest:
+  path: api
+
+jdbc:
+  datasources:
+    appDataSource:
+      url: jdbc:hsqldb:file:${application.dataBaseFile}
+
+jpa:
+  units:
+    appUnit:
+      datasource: appDataSource
+      properties:
+        hibernate.dialect: org.hibernate.dialect.HSQLDialect
+        hibernate.hbm2ddl.auto: update
