@@ -1,3 +1,5 @@
 backend/.idea
 backend/gift-list-backend/target
 backend/gift-list-backend/gift-list-backend.iml
+authProvider/.idea
+authProvider/authProvider/target
