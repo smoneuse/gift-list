@@ -9,7 +9,13 @@ application:
   id: gift-list
   # Make sure all your application base packages are listed below
   basePackages: [ org.scilab ]
-  dataBaseFile: F:/dev/gift-list-bdd/gift-list.db
+  init-user:
+    login: ${env.INIT_USER_LOGIN}
+    password: ${env.INIT_USER_PASSWORD}
+
+web :
+  server:
+    port: 8080
 
 rest:
   path: api
@@ -17,12 +23,33 @@ rest:
 jdbc:
   datasources:
     appDataSource:
-      url: jdbc:hsqldb:file:${application.dataBaseFile}
+      provider: org.seedstack.jdbc.internal.datasource.HikariDataSourceProvider
+      url: jdbc:postgresql://${env.GIFTLIST_DB_HOST}:${env.GIFTLIST_DB_PORT}/postgres
+      user: ${env.GIFTLIST_DB_USER}
+      password: ${env.GIFTLIST_DB_PASSWORD}
 
 jpa:
   units:
     appUnit:
       datasource: appDataSource
       properties:
-        hibernate.dialect: org.hibernate.dialect.HSQLDialect
+        hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
         hibernate.hbm2ddl.auto: update
+
+security:
+  web:
+    urls:
+      -
+        pattern: /api/user/logout
+        filters: logout
+      -
+        pattern: /api/**
+        filters: [ authcBasic,noSessionCreation ]
+
+  realms: GiftListRealm
+  roles :
+    userRole: ['ADMIN','USER']
+    adminRole: 'ADMIN'
+  permissions:
+    userRole: ['standardOps','cache:invalidate']
+    adminRole: ['adminOps','cache:invalidate']

@@ -1,6 +1,8 @@
-package org.scilab.giftlist.infra.exceptions;
+package org.scilab.giftlist.infra.exceptions.list;
 
-public class GiftListDataAlreadyExistException extends GiftListException{
+import org.scilab.giftlist.infra.exceptions.GiftListException;
+
+public class GiftListDataAlreadyExistException extends GiftListException {
 
     /**
      * GiftListDataAlreadyExistException constructor
