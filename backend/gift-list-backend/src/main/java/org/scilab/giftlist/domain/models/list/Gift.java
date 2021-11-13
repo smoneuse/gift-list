@@ -25,7 +25,7 @@ public class Gift extends BaseAggregateRoot<String> {
     @ElementCollection
     private List<String> links;
     private String status;
-    @OneToOne
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "login")
     private AuthUser giver;
     private Date deliveryDate;
@@ -53,6 +53,11 @@ public class Gift extends BaseAggregateRoot<String> {
         this.lastUpdateDate=new Date(System.currentTimeMillis());
     }
 
+    /**
+     * Adds a link ti the gift
+     * @param link link to add
+     * @throws GiftListException <ul><li>@{@link GiftListInvalidParameterException} if provided link is empty</li><li>@{@link GiftListDataAlreadyExistException} if provided link is already associated to this gift</li></ul>
+     */
     public void addLink(String link) throws GiftListException{
         if(Strings.isNullOrEmpty(link)){
             throw new GiftListInvalidParameterException("Can't add an empty link");
@@ -62,6 +67,17 @@ public class Gift extends BaseAggregateRoot<String> {
         }
         links.add(link);
         this.lastUpdateDate=new Date(System.currentTimeMillis());
+    }
+
+    /**
+     * Removes a link to the current links list
+     * @param link the link to remove
+     */
+    public void removeLink(String link){
+        if(Strings.isNullOrEmpty(link) || links.isEmpty()){
+            return;
+        }
+        links.remove(link);
     }
 
     private int boundRating(int rating){

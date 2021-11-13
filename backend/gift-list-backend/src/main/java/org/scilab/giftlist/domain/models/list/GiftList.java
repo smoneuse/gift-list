@@ -19,12 +19,12 @@ import java.util.List;
 public class GiftList extends BaseAggregateRoot<String> {
     @Id
     private String id;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinTable( name = "T_Owners_Lists_Associations",
             joinColumns = @JoinColumn( name = "id" ),
             inverseJoinColumns = @JoinColumn( name = "login" ) )
     private AuthUser owner;
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable( name = "T_Users_Lists_Associations",
             joinColumns = @JoinColumn( name = "id" ),
             inverseJoinColumns = @JoinColumn( name = "login" ) )

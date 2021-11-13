@@ -12,6 +12,7 @@ import org.seedstack.business.domain.BaseAggregateRoot;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Entity
@@ -21,12 +22,12 @@ public class AuthUser extends BaseAggregateRoot<String>     {
     private String hashPwd;
     private String saltPwd;
     private String role;
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable( name = "T_Users_Lists_Associations",
             joinColumns = @JoinColumn( name = "login" ),
             inverseJoinColumns = @JoinColumn( name = "id" ) )
     private List<GiftList> authorizedLists;
-    @OneToMany
+    @OneToMany(fetch = FetchType.EAGER)
     @JoinTable( name = "T_Owners_Lists_Associations",
             joinColumns = @JoinColumn( name = "login" ),
             inverseJoinColumns = @JoinColumn( name = "id" ) )
@@ -93,6 +94,22 @@ public class AuthUser extends BaseAggregateRoot<String>     {
         this.authorizedLists.add(list);
     }
 
+    /**
+     * Removes a list from the view permissions
+     * @param list the list to remove
+     */
+    public void removeFromAuthorizedList(GiftList list){
+        if(list==null || authorizedLists==null){
+            return;
+        }
+        for(GiftList currentAuthorized : authorizedLists){
+            if(currentAuthorized.getId().equals(list.getId())){
+                authorizedLists.remove(currentAuthorized);
+                break;
+            }
+        }
+    }
+
     @Override
     public String getId() {
         return login;
@@ -115,6 +132,16 @@ public class AuthUser extends BaseAggregateRoot<String>     {
     }
 
     public List<GiftList> getAuthorizedLists() {
+        if(authorizedLists==null){
+            authorizedLists=new ArrayList<>();
+        }
         return authorizedLists;
+    }
+
+    public List<GiftList> getOwnedLists() {
+        if(ownedLists==null){
+            ownedLists=new ArrayList<>();
+        }
+        return ownedLists;
     }
 }

@@ -5,6 +5,8 @@ import org.scilab.giftlist.infra.exceptions.security.AuthException;
 import org.scilab.giftlist.infra.security.GiftListRoles;
 import org.seedstack.business.Service;
 
+import java.util.Optional;
+
 /**
  * Business service for user authentication
  */
@@ -23,6 +25,13 @@ public interface AuthUserService {
      * </ul>
      */
     AuthUser register(String login, String password, GiftListRoles role) throws AuthException;
+
+    /**
+     * Finds an account
+     * @param login the account login
+     * @return @{@link Optional}&lt;@{@link AuthUser};gt; user found
+     */
+    Optional<AuthUser> findAccount(String login);
 
     /**
      * Checks that a user is registered in the database

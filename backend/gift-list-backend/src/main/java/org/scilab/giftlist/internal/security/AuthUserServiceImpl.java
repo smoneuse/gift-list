@@ -14,6 +14,7 @@ import org.seedstack.seed.transaction.Transactional;
 import org.slf4j.Logger;
 
 import javax.inject.Inject;
+import java.util.Optional;
 
 public class AuthUserServiceImpl implements AuthUserService{
 
@@ -141,5 +142,15 @@ public class AuthUserServiceImpl implements AuthUserService{
         if(!Strings.isNullOrEmpty(login) && authUserRepository.contains(login)) {
             authUserRepository.remove(login);
         }
+    }
+
+    @Override
+    @Transactional
+    @JpaUnit("appUnit")
+    public Optional<AuthUser> findAccount(String login) {
+        if(Strings.isNullOrEmpty(login)){
+            return Optional.empty();
+        }
+        return authUserRepository.get(login);
     }
 }
