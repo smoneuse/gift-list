@@ -144,8 +144,11 @@ public class GiftServiceImpl implements GiftService{
         List<Gift> updatedGifts= new ArrayList<>();
         for(Gift reservedGift : reservedGiftList){
             try {
-                setOffered(reservedGift.getId());
-                updatedGifts.add(reservedGift);
+                if(reservedGift.getDeliveryDate().before(actualDate)) {
+                    logger.info("Automatically set gift {} to GIVEN", reservedGift.getId());
+                    setOffered(reservedGift.getId());
+                    updatedGifts.add(reservedGift);
+                }
             }
             catch (GiftListException gle){
                 logger.warn("Issue while setting gift {} offered : {}", reservedGift.getId(), gle.getMessage());

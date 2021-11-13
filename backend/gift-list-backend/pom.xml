@@ -140,6 +140,11 @@
             <groupId>org.seedstack.addons.jpa</groupId>
             <artifactId>jpa</artifactId>
         </dependency>
+        <!--Scheduling addon-->
+        <dependency>
+            <groupId>org.seedstack.addons.scheduling</groupId>
+            <artifactId>scheduling</artifactId>
+        </dependency>
         <!-- hibernate-->
         <dependency>
             <groupId>org.hibernate</groupId>
