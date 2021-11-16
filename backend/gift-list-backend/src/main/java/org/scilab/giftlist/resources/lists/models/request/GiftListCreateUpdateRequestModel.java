@@ -1,10 +1,14 @@
 package org.scilab.giftlist.resources.lists.models.request;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 /**
  * Model for Gift List creation
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class GiftListCreateUpdateRequestModel {
-    private String listId;
+    private String id;
     private String title;
     private String description;
 
@@ -24,11 +28,11 @@ public class GiftListCreateUpdateRequestModel {
         this.description = description;
     }
 
-    public String getListId() {
-        return listId;
+    public String getId() {
+        return id;
     }
 
-    public void setListId(String listId) {
-        this.listId = listId;
+    public void setId(String id) {
+        this.id = id;
     }
 }

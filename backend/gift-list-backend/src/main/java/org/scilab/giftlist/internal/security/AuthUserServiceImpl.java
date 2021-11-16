@@ -10,12 +10,14 @@ import org.seedstack.jpa.JpaUnit;
 import org.seedstack.seed.Logging;
 import org.seedstack.seed.crypto.Hash;
 import org.seedstack.seed.crypto.HashingService;
+import org.seedstack.seed.transaction.Propagation;
 import org.seedstack.seed.transaction.Transactional;
 import org.slf4j.Logger;
 
 import javax.inject.Inject;
 import java.util.Optional;
-
+@Transactional(propagation = Propagation.REQUIRED)
+@JpaUnit("appUnit")
 public class AuthUserServiceImpl implements AuthUserService{
 
     @Logging
@@ -29,8 +31,6 @@ public class AuthUserServiceImpl implements AuthUserService{
     private HashingService hashingService;
 
     @Override
-    @Transactional
-    @JpaUnit("appUnit")
     public AuthUser register(String login, String password, GiftListRoles role) throws AuthException {
         logger.info("Request for adding user {}", login);
         AuthUser newUser= new AuthUser(login);
@@ -50,15 +50,11 @@ public class AuthUserServiceImpl implements AuthUserService{
     }
 
     @Override
-    @Transactional
-    @JpaUnit("appUnit")
     public boolean checkUserKnown(String login) {
         return authUserRepository.get(login).isPresent();
     }
 
     @Override
-    @Transactional
-    @JpaUnit("appUnit")
     public boolean validateUserPassword(String login, String password) {
         if(Strings.isNullOrEmpty(login) || Strings.isNullOrEmpty(password)){
             logger.info("Can't validate password without data");
@@ -76,8 +72,6 @@ public class AuthUserServiceImpl implements AuthUserService{
     }
 
     @Override
-    @Transactional
-    @JpaUnit("appUnit")
     public String getUserRole(String login) throws AuthException {
         if(Strings.isNullOrEmpty(login)){
             logger.info("Can't retrieve role without data");
@@ -88,8 +82,6 @@ public class AuthUserServiceImpl implements AuthUserService{
     }
 
     @Override
-    @Transactional
-    @JpaUnit("appUnit")
     public AuthUser updateUserRole(String login, String password, GiftListRoles newRole) throws AuthException {
         AuthUser currentUser = authUserRepository.get(login).orElseThrow(()-> new UnknownUserException("User not found : "+login));
         if(!validateUserPassword(login, password)){
@@ -104,8 +96,6 @@ public class AuthUserServiceImpl implements AuthUserService{
     }
 
     @Override
-    @Transactional
-    @JpaUnit("appUnit")
     public AuthUser updatePassword(String login, String currentPassword, String newPassword) throws AuthException {
         AuthUser currentUser = authUserRepository.get(login).orElseThrow(()-> new UnknownUserException("User not found : "+login));
         if(!validateUserPassword(login, currentPassword)){
@@ -117,8 +107,6 @@ public class AuthUserServiceImpl implements AuthUserService{
     }
 
     @Override
-    @Transactional
-    @JpaUnit("appUnit")
     public AuthUser forceUpdatePassword(String login, String newPassword) throws AuthException {
         AuthUser currentUser = authUserRepository.get(login).orElseThrow(()-> new UnknownUserException("User not found : "+login));
         Hash newPasswordHash =hashingService.createHash(newPassword);
@@ -127,8 +115,6 @@ public class AuthUserServiceImpl implements AuthUserService{
     }
 
     @Override
-    @Transactional
-    @JpaUnit("appUnit")
     public AuthUser forceUpdateRole(String login, GiftListRoles newRole) throws AuthException {
         AuthUser currentUser = authUserRepository.get(login).orElseThrow(()-> new UnknownUserException("User not found : "+login));
         currentUser.setRole(newRole.toString());
@@ -136,8 +122,6 @@ public class AuthUserServiceImpl implements AuthUserService{
     }
 
     @Override
-    @Transactional
-    @JpaUnit("appUnit")
     public void deleteUser(String login) {
         if(!Strings.isNullOrEmpty(login) && authUserRepository.contains(login)) {
             authUserRepository.remove(login);
@@ -145,8 +129,6 @@ public class AuthUserServiceImpl implements AuthUserService{
     }
 
     @Override
-    @Transactional
-    @JpaUnit("appUnit")
     public Optional<AuthUser> findAccount(String login) {
         if(Strings.isNullOrEmpty(login)){
             return Optional.empty();

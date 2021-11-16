@@ -7,10 +7,10 @@ import org.scilab.giftlist.infra.exceptions.GiftListInvalidParameterException;
 import org.scilab.giftlist.infra.exceptions.list.GiftListDataAlreadyExistException;
 import org.scilab.giftlist.internal.gift.GiftConstants;
 import org.scilab.giftlist.internal.gift.GiftStatus;
+import org.scilab.giftlist.internal.misc.LinksUtils;
 import org.seedstack.business.domain.BaseAggregateRoot;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -22,8 +22,7 @@ public class Gift extends BaseAggregateRoot<String> {
     private String title;
     private String comment;
     private int rating;
-    @ElementCollection
-    private List<String> links;
+    private String links;
     private String status;
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "login")
@@ -38,7 +37,6 @@ public class Gift extends BaseAggregateRoot<String> {
     public Gift(String giftId){
         this.id=giftId;
         this.status =GiftStatus.AVAILABLE.toString();
-        this.links= new ArrayList<>();
         this.creationDate=new Date(System.currentTimeMillis());
         this.lastUpdateDate= new Date(System.currentTimeMillis());
     }
@@ -62,10 +60,17 @@ public class Gift extends BaseAggregateRoot<String> {
         if(Strings.isNullOrEmpty(link)){
             throw new GiftListInvalidParameterException("Can't add an empty link");
         }
-        if(links.stream().filter(aLink->aLink.equals(link)).count()!=0){
+        if(Strings.isNullOrEmpty(this.links)){
+            this.links=link;
+            this.lastUpdateDate=new Date(System.currentTimeMillis());
+            return;
+        }
+        List<String> actualLinks= LinksUtils.toList(this.links);
+        if(actualLinks.contains(link)){
             throw new GiftListDataAlreadyExistException("This links is already associated to this gift");
         }
-        links.add(link);
+        actualLinks.add(link);
+        this.links=LinksUtils.toLinkString(actualLinks);
         this.lastUpdateDate=new Date(System.currentTimeMillis());
     }
 
@@ -74,10 +79,12 @@ public class Gift extends BaseAggregateRoot<String> {
      * @param link the link to remove
      */
     public void removeLink(String link){
-        if(Strings.isNullOrEmpty(link) || links.isEmpty()){
+        if(Strings.isNullOrEmpty(link) || Strings.isNullOrEmpty(this.links)){
             return;
         }
-        links.remove(link);
+        List<String> actualLinks= LinksUtils.toList(this.links);
+        actualLinks.remove(link);
+        this.links = LinksUtils.toLinkString(actualLinks);
     }
 
     private int boundRating(int rating){
@@ -117,7 +124,7 @@ public class Gift extends BaseAggregateRoot<String> {
         return rating;
     }
 
-    public List<String> getLinks() {
+    public String getLinks() {
         return links;
     }
 

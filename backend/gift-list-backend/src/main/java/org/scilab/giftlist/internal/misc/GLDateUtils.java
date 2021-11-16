@@ -7,7 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class GLDateUtils {
-    private static final String GL_RESPONSES_DTE_FORMAT="dd / MM / yyyy";
+    private static final String GL_RESPONSES_DTE_FORMAT="dd/MM/yyyy";
     private static final SimpleDateFormat SDF = new SimpleDateFormat(GL_RESPONSES_DTE_FORMAT);
 
     public static String formatDate(Date aDate){

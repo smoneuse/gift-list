@@ -2,6 +2,8 @@ package org.scilab.giftlist.domain.models.list;
 
 import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.scilab.giftlist.domain.models.security.AuthUser;
 import org.scilab.giftlist.infra.exceptions.GiftListException;
 import org.scilab.giftlist.infra.exceptions.GiftListInvalidParameterException;
@@ -10,7 +12,9 @@ import org.seedstack.business.domain.BaseAggregateRoot;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Gift List model
@@ -28,11 +32,14 @@ public class GiftList extends BaseAggregateRoot<String> {
     @JoinTable( name = "T_Users_Lists_Associations",
             joinColumns = @JoinColumn( name = "id" ),
             inverseJoinColumns = @JoinColumn( name = "login" ) )
-    private List<AuthUser> viewers;
+    private Set<AuthUser> viewers;
     private String title;
     private String description;
-    @OneToMany( targetEntity = Gift.class, mappedBy = "id")
-    private List<Gift> gifts;
+    @OneToMany(fetch = FetchType.EAGER)
+    @JoinTable( name = "T_Gifts_Lists_Associations",
+            joinColumns = @JoinColumn( name = "listId" ),
+            inverseJoinColumns = @JoinColumn( name = "giftId"))
+    private Set<Gift> gifts;
 
     /**Hibernate required*/
     public GiftList(){}
@@ -43,8 +50,8 @@ public class GiftList extends BaseAggregateRoot<String> {
      */
     public GiftList(String id){
         this.id=id;
-        this.gifts= new ArrayList<>();
-        this.viewers = new ArrayList<>();
+        this.gifts= new HashSet<>();
+        this.viewers = new HashSet<>();
     }
 
     /**
@@ -92,6 +99,13 @@ public class GiftList extends BaseAggregateRoot<String> {
         this.gifts.add(addedGift);
     }
 
+    public void removeGift(String aGiftId) throws GiftListInvalidParameterException {
+        if(aGiftId==null){
+            throw new GiftListInvalidParameterException("Can't remove a non provided gift");
+        }
+        this.gifts.removeIf( someGift-> someGift.getId().equals(aGiftId));
+    }
+
     @Override
     public String getId() {
         return id;
@@ -108,11 +122,12 @@ public class GiftList extends BaseAggregateRoot<String> {
     public void setOwner(AuthUser owner) {
         this.owner = owner;
     }
-    public void setViewers(List<AuthUser> viewers) {
+
+    public void setViewers(Set<AuthUser> viewers) {
         this.viewers = viewers;
     }
 
-    public void setGifts(List<Gift> gifts) {
+    public void setGifts(Set<Gift> gifts) {
         this.gifts = gifts;
     }
 
@@ -120,11 +135,11 @@ public class GiftList extends BaseAggregateRoot<String> {
         return owner;
     }
 
-    public List<AuthUser> getViewers() {
+    public Set<AuthUser> getViewers() {
         return viewers;
     }
 
-    public List<Gift> getGifts() {
+    public Set<Gift> getGifts() {
         return gifts;
     }
 }

@@ -1,8 +1,11 @@
 package org.scilab.giftlist.resources.security.models.request;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 /**
  * Model for updating an account
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class UpdateAccountModel {
     private String login;
     private String currentPassword;

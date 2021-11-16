@@ -14,6 +14,10 @@ application:
     password: ${env.INIT_USER_PASSWORD}
 
 web :
+  cors:
+    enabled: true
+    properties:
+      supportedMethods: GET, POST, HEAD, OPTIONS, PUT, DELETE
   server:
     port: 8080
 
@@ -40,7 +44,16 @@ security:
   web:
     urls:
       -
-        pattern: /api/user/logout
+        pattern: /api/account/register
+        filters: anon
+      -
+        pattern: /api/account/login
+        filters: anon
+      -
+        pattern: /api/account/authenticated
+        filters: anon
+      -
+        pattern: /api/account/logout
         filters: logout
       -
         pattern: /api/**

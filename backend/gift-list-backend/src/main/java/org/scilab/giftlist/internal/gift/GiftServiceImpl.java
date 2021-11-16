@@ -13,6 +13,7 @@ import org.seedstack.business.specification.Specification;
 import org.seedstack.jpa.Jpa;
 import org.seedstack.jpa.JpaUnit;
 import org.seedstack.seed.Logging;
+import org.seedstack.seed.transaction.Propagation;
 import org.seedstack.seed.transaction.Transactional;
 import org.slf4j.Logger;
 
@@ -23,6 +24,8 @@ import java.util.stream.Collectors;
 /**
  * Implementation for GiftService
  */
+@Transactional(propagation = Propagation.REQUIRED)
+@JpaUnit("appUnit")
 public class GiftServiceImpl implements GiftService{
     @Logging
     private Logger logger;
@@ -32,18 +35,25 @@ public class GiftServiceImpl implements GiftService{
     private Repository<Gift, String> giftRepository;
 
     @Inject
+    @Jpa
+    private Repository<GiftList, String> giftListRepository;
+
+    @Inject
     private GiftListsService giftListsService;
 
     @Inject
     private AuthUserService authUserService;
 
     @Override
-    @Transactional
-    @JpaUnit("appUnit")
-    public Gift createGift(String giftListId, String title, String comment, int rating) throws GiftListException {
+    public Gift createGift(String giftListId, String title, String comment, int rating, List<String> links) throws GiftListException {
         Gift createdGift =new Gift(UUID.randomUUID().toString());
         try {
             createdGift.titleCommentRate(title, comment, rating);
+            if(links!=null){
+                for(String link : links){
+                    createdGift.addLink(link);
+                }
+            }
             giftRepository.add(createdGift);
             giftListsService.addGift(createdGift,giftListId);
             return createdGift;
@@ -58,8 +68,6 @@ public class GiftServiceImpl implements GiftService{
     }
 
     @Override
-    @Transactional
-    @JpaUnit("appUnit")
     public Optional<Gift> single(String giftId) {
         if(Strings.isNullOrEmpty(giftId)){
             return Optional.empty();
@@ -68,17 +76,18 @@ public class GiftServiceImpl implements GiftService{
     }
 
     @Override
-    @Transactional
-    @JpaUnit("appUnit")
-    public void remove(String giftId) {
+    public void remove(String listId, String giftId) throws GiftListException {
         if(!Strings.isNullOrEmpty(giftId) && giftRepository.contains(giftId)){
+            //First remove from the list
+            GiftList list = giftListsService.single(listId).orElseThrow(()->new GiftListException("Cannot delete Gift : can't find list"));
+            list.removeGift(giftId);
+            giftListRepository.update(list);
+            //Deletes the gift
             giftRepository.remove(giftId);
         }
     }
 
     @Override
-    @Transactional
-    @JpaUnit("appUnit")
     public Gift update(String giftListId, String giftId, String newTitle, String newComment, int newRating) throws GiftListException {
         GiftList giftList= giftListsService.single(giftListId).orElseThrow(()->new GiftListException("Can't update gift : list not found :"+giftListId));
         Gift actualGift = giftRepository.get(giftId).orElseThrow(()-> new GiftListException("Can't update gift : gift not found : "+giftId));
@@ -90,12 +99,10 @@ public class GiftServiceImpl implements GiftService{
     }
 
     @Override
-    @Transactional
-    @JpaUnit("appUnit")
     public Gift reserve(String giftId, String giverLogin, Date offeringDate) throws GiftListException {
         Gift actualGift = giftRepository.get(giftId).orElseThrow(()-> new GiftListException("Can't reserve gift : gift not found : "+giftId));
         AuthUser giver = authUserService.findAccount(giverLogin).orElseThrow(()->new GiftListException("Can't reserve gift : giver unknown :"+giverLogin));
-        if(!actualGift.getStatus().equals(GiftStatus.AVAILABLE)){
+        if(!actualGift.getStatus().equals(GiftStatus.AVAILABLE.toString())){
             throw new GiftListException("Can't reserve gift : status is not AVAILABLE");
         }
         actualGift.setGiver(giver);
@@ -105,15 +112,13 @@ public class GiftServiceImpl implements GiftService{
     }
 
     @Override
-    @Transactional
-    @JpaUnit("appUnit")
     public Gift release(String giftId, String giverLogin) throws GiftListException {
         Gift actualGift = giftRepository.get(giftId).orElseThrow(()-> new GiftListException("Can't release gift : gift not found : "+giftId));
         AuthUser giver = authUserService.findAccount(giverLogin).orElseThrow(()->new GiftListException("Can't release gift : giver unknown :"+giverLogin));
-        if(!actualGift.getStatus().equals(GiftStatus.RESERVED)){
+        if(!actualGift.getStatus().equals(GiftStatus.RESERVED.toString())){
             throw new GiftListException("Can't release gift : status is not RESERVED");
         }
-        if(!actualGift.getGiver().getLogin().equals(giverLogin) && !giver.getRole().equals(GiftListRoles.ADMIN)){
+        if(!actualGift.getGiver().getLogin().equals(giverLogin) && !giver.getRole().equals(GiftListRoles.ADMIN.toString())){
             throw new GiftListException("Can't release gift : Gift can only be released by the same giver or an admin");
         }
         actualGift.setStatus(GiftStatus.AVAILABLE);
@@ -123,8 +128,6 @@ public class GiftServiceImpl implements GiftService{
     }
 
     @Override
-    @Transactional
-    @JpaUnit("appUnit")
     public Gift setOffered(String giftId) throws GiftListException {
         Gift actualGift = giftRepository.get(giftId).orElseThrow(()-> new GiftListException("Can't set offered gift : gift not found : "+giftId));
         actualGift.setStatus(GiftStatus.GIVEN);
@@ -132,8 +135,6 @@ public class GiftServiceImpl implements GiftService{
     }
 
     @Override
-    @Transactional
-    @JpaUnit("appUnit")
     public List<Gift> scanAndSetOffered() {
         Date actualDate = new Date(System.currentTimeMillis());
         Specification<Gift> reservedGifts = giftRepository.getSpecificationBuilder()
@@ -158,8 +159,6 @@ public class GiftServiceImpl implements GiftService{
     }
 
     @Override
-    @Transactional
-    @JpaUnit("appUnit")
     public Gift addLink(String giftId, String link) throws GiftListException {
         Gift actualGift = giftRepository.get(giftId).orElseThrow(()-> new GiftListException("Can't add link : gift not found : "+giftId));
         if(Strings.isNullOrEmpty(link)){

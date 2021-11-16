@@ -1,8 +1,11 @@
 package org.scilab.giftlist.resources.security.models.request;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 /**
  * Request model for creating an account
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class CreateAccountModel {
     public String login;
     public String password;

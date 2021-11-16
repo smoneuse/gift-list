@@ -2,8 +2,10 @@ package org.scilab.giftlist.infra.security;
 
 import org.scilab.giftlist.infra.exceptions.security.AuthException;
 import org.scilab.giftlist.internal.security.AuthUserService;
+import org.seedstack.jpa.JpaUnit;
 import org.seedstack.seed.security.*;
 import org.seedstack.seed.security.principals.PrincipalProvider;
+import org.seedstack.seed.transaction.Transactional;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -22,6 +24,8 @@ public class GiftListRealm implements Realm {
     private AuthUserService authUserService;
 
     @Override
+    @Transactional
+    @JpaUnit("appUnit")
     public AuthenticationInfo getAuthenticationInfo(AuthenticationToken authenticationToken) throws AuthenticationException {
         if (authenticationToken instanceof UsernamePasswordToken) {
             UsernamePasswordToken token=(UsernamePasswordToken)authenticationToken;
@@ -71,6 +75,8 @@ public class GiftListRealm implements Realm {
     }
 
     @Override
+    @Transactional
+    @JpaUnit("appUnit")
     public Set<String> getRealmRoles(PrincipalProvider<?> identityPrincipal, Collection<PrincipalProvider<?>> otherPrincipals) {
         try {
             Set<String> userRoles = new HashSet<>();

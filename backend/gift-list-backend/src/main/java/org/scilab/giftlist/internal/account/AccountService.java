@@ -6,6 +6,7 @@ import org.scilab.giftlist.infra.exceptions.GiftListException;
 import org.seedstack.business.Service;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Business service for account - list relations
@@ -16,9 +17,9 @@ public interface AccountService {
     /**
      * Retrieves a user owned lists
      * @param ownerLogin the user login
-     * @return @{@link List}&lt;@{@link GiftList}&gt; the user's owned lists
+     * @return @{@link Set}&lt;@{@link GiftList}&gt; the user's owned lists
      */
-    public List<GiftList> ownedLists(String ownerLogin) throws GiftListException;
+    public Set<GiftList> ownedLists(String ownerLogin) throws GiftListException;
 
     /**
      * Grants the view permission to a user on a particular list
@@ -39,16 +40,32 @@ public interface AccountService {
     /**
      * Retrieves all lists a user has view on
      * @param viewerLogin the viewer login
-     * @return @{@link List}&lt;@{@link GiftList}&gt; gift Lists the user has view permission granted on
+     * @return @{@link Set}&lt;@{@link GiftList}&gt; gift Lists the user has view permission granted on
      * @throws GiftListException User not found
      */
-    public List<GiftList> authorizedLists(String viewerLogin) throws GiftListException;
+    public Set<GiftList> authorizedLists(String viewerLogin) throws GiftListException;
 
     /**
      * Retrieves all viewers of a particular list
      * @param listId the list identifier
-     * @return @{@link List}&lt;@{@link AuthUser}&gt; the list viewers
+     * @return @{@link Set}&lt;@{@link AuthUser}&gt; the list viewers
      * @throws GiftListException list not found
      */
-    public List<AuthUser> listViewers(String listId) throws GiftListException;
+    public Set<AuthUser> listViewers(String listId) throws GiftListException;
+
+    /**
+     * Adds a friend to the user
+     * @param user the user ti be updated
+     * @param friendLogin the friend login to be added
+     * @return the updated user
+     * @throws GiftListException if the friend is not found
+     */
+    public AuthUser addFriend(AuthUser user, String friendLogin) throws GiftListException;
+
+    /**
+     * Removes a friend to the user
+     * @param user the user ti be updated
+     * @param friendLogin the friend login to be removed
+     */
+    public void removeFriend(AuthUser user, String friendLogin);
 }

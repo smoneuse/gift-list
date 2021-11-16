@@ -5,6 +5,7 @@ import org.scilab.giftlist.domain.models.list.Gift;
 import org.scilab.giftlist.domain.models.list.GiftList;
 import org.scilab.giftlist.internal.gift.GiftStatus;
 import org.scilab.giftlist.internal.misc.GLDateUtils;
+import org.scilab.giftlist.internal.misc.LinksUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +17,7 @@ public class GiftListResponseModel {
 
     private final String id;
     private final String title;
+    private final String owner;
     private final String description;
     private final List<String> authorizedViewers;
     private final List<GiftListGiftResponseModel> gifts;
@@ -23,6 +25,7 @@ public class GiftListResponseModel {
     public GiftListResponseModel(GiftList giftList){
         this.id=giftList.getId();
         this.title=giftList.getTitle();
+        this.owner=giftList.getOwner().getLogin();
         this.description= Strings.nullToEmpty(giftList.getDescription());
         this.authorizedViewers=new ArrayList<>();
         this.gifts = new ArrayList<>();
@@ -33,14 +36,14 @@ public class GiftListResponseModel {
      * @param aGift the gift to add
      */
     public void addGiftResponseForOwner(Gift aGift){
-        GiftListGiftResponseModel giftResponse = new GiftListGiftResponseModel(aGift);
+        GiftListGiftResponseModel giftResponse = new GiftListGiftResponseModel(aGift, this.id);
         if(aGift.getStatus().equals(GiftStatus.RESERVED.toString())){
             giftResponse.setStatus(GiftStatus.AVAILABLE.toString());
         }
         else{
             giftResponse.setStatus(aGift.getStatus());
         }
-        if(aGift.getStatus().equals(GiftStatus.GIVEN)){
+        if(aGift.getStatus().equals(GiftStatus.GIVEN.toString())){
             giftResponse.setGenerousGiver(aGift.getGiver().getLogin());
             giftResponse.setOfferingDate(GLDateUtils.formatDate(aGift.getDeliveryDate()));
         }
@@ -51,11 +54,23 @@ public class GiftListResponseModel {
      * A viewer can see all details
      * @param aGift gift to add
      */
-    public void addGiftResponseForViewer(Gift aGift){
-        GiftListGiftResponseModel giftResponse = new GiftListGiftResponseModel(aGift);
+    public void addGiftResponseForViewer(Gift aGift ,String viewerLogin ){
+        if(aGift.getStatus().equals(GiftStatus.GIVEN.toString())){
+            //Don't add already given gifts
+            return;
+        }
+        if(aGift.getGiver()!=null && aGift.getStatus().equals(GiftStatus.RESERVED.toString()) && !viewerLogin.equals(aGift.getGiver().getLogin())){
+            //Don't add gifts reserved by another viewer
+            return;
+        }
+        GiftListGiftResponseModel giftResponse = new GiftListGiftResponseModel(aGift, this.id);
         giftResponse.setStatus(aGift.getStatus());
-        giftResponse.setGenerousGiver(aGift.getGiver().getLogin());
-        giftResponse.setOfferingDate(GLDateUtils.formatDate(aGift.getDeliveryDate()));
+        if(aGift.getGiver() !=null){
+            giftResponse.setGenerousGiver(aGift.getGiver().getLogin());
+        }
+        if(aGift.getDeliveryDate() !=null) {
+            giftResponse.setOfferingDate(GLDateUtils.formatDate(aGift.getDeliveryDate()));
+        }
         gifts.add(giftResponse);
     }
 
@@ -87,7 +102,13 @@ public class GiftListResponseModel {
         return gifts;
     }
 
+    public String getOwner() {
+        return owner;
+    }
+
     private class GiftListGiftResponseModel{
+        private final String giftId;
+        private final String listId;
         private final String title;
         private final String comment;
         private final int rating;
@@ -99,11 +120,13 @@ public class GiftListResponseModel {
         private String generousGiver;
 
 
-        public GiftListGiftResponseModel(Gift aGift){
+        public GiftListGiftResponseModel(Gift aGift, String listId){
+            this.giftId=aGift.getId();
+            this.listId=listId;
             this.title=aGift.getTitle();
             this.comment=Strings.nullToEmpty(aGift.getComment());
             this.rating=aGift.getRating();
-            this.links = aGift.getLinks();
+            this.links = LinksUtils.toList(aGift.getLinks());
             this.created= GLDateUtils.formatDate(aGift.getCreationDate());
             this.lastUpdate=GLDateUtils.formatDate(aGift.getLastUpdateDate());
         }
@@ -154,6 +177,14 @@ public class GiftListResponseModel {
 
         public String getGenerousGiver() {
             return generousGiver;
+        }
+
+        public String getGiftId() {
+            return giftId;
+        }
+
+        public String getListId() {
+            return listId;
         }
     }
 }

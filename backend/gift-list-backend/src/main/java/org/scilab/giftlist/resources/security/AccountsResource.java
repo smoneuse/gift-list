@@ -1,33 +1,58 @@
 package org.scilab.giftlist.resources.security;
 
 import com.google.common.base.Strings;
+import org.scilab.giftlist.domain.models.security.AuthUser;
+import org.scilab.giftlist.infra.exceptions.GiftListException;
 import org.scilab.giftlist.infra.exceptions.security.*;
 import org.scilab.giftlist.infra.security.GiftListRoles;
+import org.scilab.giftlist.internal.account.AccountService;
 import org.scilab.giftlist.internal.requests.ResponseStatus;
 import org.scilab.giftlist.internal.security.AuthUserService;
 import org.scilab.giftlist.resources.security.models.request.CreateAccountModel;
 import org.scilab.giftlist.resources.security.models.request.UpdateAccountModel;
 import org.scilab.giftlist.resources.security.models.response.AccountEchoResponse;
 import org.scilab.giftlist.resources.security.models.response.CreateOrUpdateAccountResponse;
+import org.seedstack.jpa.JpaUnit;
+import org.seedstack.seed.Logging;
+import org.seedstack.seed.crypto.HashingService;
+import org.seedstack.seed.security.AuthenticationToken;
 import org.seedstack.seed.security.RequiresRoles;
 import org.seedstack.seed.security.SecuritySupport;
+import org.seedstack.seed.security.UsernamePasswordToken;
 import org.seedstack.seed.security.principals.Principals;
+import org.seedstack.seed.transaction.Transactional;
+import org.slf4j.Logger;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Resource class for Accounts management
  */
 @Path("account")
+@Transactional
+@JpaUnit("appUnit")
 public class AccountsResource {
+
+    @Logging
+    private Logger logger;
 
     @Inject
     private AuthUserService authUserService;
 
     @Inject
+    private AccountService accountService;
+
+    @Inject
+    private HashingService hashingService;
+
+    @Inject
     private SecuritySupport securitySupport;
+
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
@@ -52,6 +77,96 @@ public class AccountsResource {
         }
         return response;
     }
+
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/register")
+    public CreateOrUpdateAccountResponse register(CreateAccountModel user){
+        try {
+            authUserService.register(user.getLogin(), user.getPassword(), GiftListRoles.USER);
+        }
+        catch (CredentialsNotFoundException cnfe){
+            return new CreateOrUpdateAccountResponse(user.getLogin(), ResponseStatus.INVALID_DATA, cnfe.getMessage());
+        }
+        catch (UserAlreadyExistException uae){
+            return new CreateOrUpdateAccountResponse(user.getLogin(), ResponseStatus.ALREADY_PRESENT, uae.getMessage());
+        }
+        catch (AuthException ae){
+            return new CreateOrUpdateAccountResponse(user.getLogin(), ResponseStatus.FAILURE, ae.getMessage());
+        }
+        //Logs the user after successful registration
+        return login(user);
+    }
+
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/friends/{friend}")
+    @RequiresRoles("userRole")
+    public Set<String> addFriend(@PathParam("friend") String friendLogin){
+        String currentUserLogin=securitySupport.getSimplePrincipalByName(Principals.IDENTITY).getValue();
+        AuthUser currentUSer =this.authUserService.findAccount(currentUserLogin).orElseThrow(()->new NotFoundException("Can't find actual user "+currentUserLogin));
+        try {
+            AuthUser updated = this.accountService.addFriend(currentUSer, friendLogin);
+            Set<String> response =new HashSet<>();
+            for(AuthUser aFriend : updated.getFriends()){
+                response.add(aFriend.getLogin());
+            }
+            return response;
+        }catch (GiftListException gle){
+            Response errorResponse = Response.status(500).entity(gle.getMessage()).build();
+            throw new InternalServerErrorException(errorResponse);
+        }
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/friends")
+    @RequiresRoles("userRole")
+    public Set<String> getFriends(){
+        String currentUserLogin=securitySupport.getSimplePrincipalByName(Principals.IDENTITY).getValue();
+        AuthUser currentUSer =this.authUserService.findAccount(currentUserLogin).orElseThrow(()->new NotFoundException("Can't find actual user "+currentUserLogin));
+        Set<String> response =new HashSet<>();
+        for(AuthUser aFriend : currentUSer.getFriends()){
+            response.add(aFriend.getLogin());
+        }
+        return response;
+    }
+
+    @DELETE
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/friends/{friend}")
+    @RequiresRoles("userRole")
+    public void removeFriend(@PathParam("friend") String friendLogin){
+        String currentUserLogin=securitySupport.getSimplePrincipalByName(Principals.IDENTITY).getValue();
+        AuthUser currentUSer =this.authUserService.findAccount(currentUserLogin).orElseThrow(()->new NotFoundException("Can't find actual user "+currentUserLogin));
+        this.accountService.removeFriend(currentUSer, friendLogin);
+    }
+
+
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/login")
+    public CreateOrUpdateAccountResponse login(CreateAccountModel user){
+        if(authUserService.checkUserKnown(user.getLogin() )&& authUserService.validateUserPassword(user.getLogin(), user.getPassword()))
+        {
+            AuthenticationToken token = new UsernamePasswordToken(user.getLogin(), user.getPassword());
+            securitySupport.login(token);
+            return new CreateOrUpdateAccountResponse(user.getLogin(), ResponseStatus.SUCCESS,null);
+        }
+        else{
+            throw new javax.ws.rs.NotAuthorizedException("Incorrect credentials");
+        }
+    }
+
+
+
+    @POST
+    @Path("/logout")
+    public void logout(){
+    }
+
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -136,4 +251,5 @@ public class AccountsResource {
         }
         return response;
     }
+
 }

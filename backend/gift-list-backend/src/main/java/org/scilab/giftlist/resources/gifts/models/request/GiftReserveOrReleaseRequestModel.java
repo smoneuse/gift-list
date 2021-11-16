@@ -1,5 +1,8 @@
 package org.scilab.giftlist.resources.gifts.models.request;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class GiftReserveOrReleaseRequestModel {
     private String listId;
     private String giftId;

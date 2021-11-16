@@ -145,6 +145,12 @@
             <groupId>org.seedstack.addons.scheduling</groupId>
             <artifactId>scheduling</artifactId>
         </dependency>
+        <!--Strings utils-->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.12.0</version>
+        </dependency>
         <!-- hibernate-->
         <dependency>
             <groupId>org.hibernate</groupId>

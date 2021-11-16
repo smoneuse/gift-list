@@ -53,7 +53,7 @@ public interface GiftListsService {
      * Deletes a list;
      * @param listId list identifier
      */
-    public void deleteList(String listId);
+    public void deleteList(String listId) throws GiftListException;
 
     /**
      * Checks if a user is the owner of a list
@@ -69,5 +69,5 @@ public interface GiftListsService {
      * @param aList a list
      * @return boolean
      */
-    public  boolean checkUserIsViewer(String userToCheck, GiftList aList);
+    public  boolean checkUserIsViewerOrFriend(String userToCheck, GiftList aList);
 }

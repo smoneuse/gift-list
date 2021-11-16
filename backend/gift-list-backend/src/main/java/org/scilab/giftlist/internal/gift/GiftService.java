@@ -20,10 +20,11 @@ public interface GiftService {
      * @param title The gift title
      * @param comment a comment on a gift
      * @param rating the gift rating
+     * @param links the links to the gift
      * @return The created Gift
      * @throws GiftListException list doesn't exist / title is not set or already exist in the list
      */
-    public Gift createGift(String giftListId, String title, String comment, int rating) throws GiftListException;
+    public Gift createGift(String giftListId, String title, String comment, int rating, List<String> links) throws GiftListException;
 
     /**
      * Provides a single gift by its identifier
@@ -35,8 +36,10 @@ public interface GiftService {
     /**
      * Deletes a gift
      * @param giftId the gift Identifier
+     * @param listId the list identifier
+     * @throws GiftListException Issue while removing the gift
      */
-    public void remove(String giftId);
+    public void remove(String listId,String giftId) throws GiftListException;
 
     /**
      * Updates a gift

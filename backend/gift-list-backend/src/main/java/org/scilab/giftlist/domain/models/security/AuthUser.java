@@ -11,9 +11,7 @@ import org.scilab.giftlist.infra.exceptions.security.InvalidRoleException;
 import org.seedstack.business.domain.BaseAggregateRoot;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 @Entity
 public class AuthUser extends BaseAggregateRoot<String>     {
@@ -26,12 +24,17 @@ public class AuthUser extends BaseAggregateRoot<String>     {
     @JoinTable( name = "T_Users_Lists_Associations",
             joinColumns = @JoinColumn( name = "login" ),
             inverseJoinColumns = @JoinColumn( name = "id" ) )
-    private List<GiftList> authorizedLists;
+    private Set<GiftList> authorizedLists;
     @OneToMany(fetch = FetchType.EAGER)
     @JoinTable( name = "T_Owners_Lists_Associations",
             joinColumns = @JoinColumn( name = "login" ),
             inverseJoinColumns = @JoinColumn( name = "id" ) )
-    private List<GiftList> ownedLists;
+    private Set<GiftList> ownedLists;
+    @OneToMany(fetch = FetchType.EAGER)
+    @JoinTable( name = "T_Users_Friends_Associations",
+            joinColumns = @JoinColumn( name = "login" ),
+            inverseJoinColumns = @JoinColumn( name = "friendLogin" ) )
+    private Set<AuthUser> friends;
 
     /**Required by hibernate*/
     public AuthUser(){}
@@ -46,10 +49,41 @@ public class AuthUser extends BaseAggregateRoot<String>     {
             throw new CredentialsNotFoundException("Can't set credentials with an empty login");
         }
         this.login =login;
-        this.authorizedLists =new ArrayList<>();
-        this.ownedLists= new ArrayList<>();
+        this.authorizedLists =new HashSet<>();
+        this.ownedLists= new HashSet<>();
+        this.friends= new HashSet<>();
     }
 
+    /**
+     * Adds a friend to the user
+     * @param aFriend the friend to add
+     * @throws GiftListException If the provided friend is not valid
+     */
+    public void addFriend(AuthUser aFriend) throws GiftListException{
+        if(aFriend==null){
+            throw new GiftListInvalidParameterException("Can't add a non provided authorized list.");
+        }
+        if(this.friends==null){
+            this.friends=new HashSet<>();
+        }
+        this.friends.add(aFriend);
+    }
+
+    /**
+     * Removes a friend to the user
+     * @param aFriend a friend to remove
+     */
+    public void removeFriend(AuthUser aFriend){
+        if(aFriend==null){
+            return;
+        }
+        for(AuthUser someFriend : this.getFriends()){
+            if(someFriend.getLogin().equals(aFriend.getLogin())){
+                this.friends.remove(someFriend);
+                break;
+            }
+        }
+    }
     /**
      * Sets the user credentials on the entity
      * @param hash password hash
@@ -131,17 +165,28 @@ public class AuthUser extends BaseAggregateRoot<String>     {
         return hashPwd;
     }
 
-    public List<GiftList> getAuthorizedLists() {
+    public Set<GiftList> getAuthorizedLists() {
         if(authorizedLists==null){
-            authorizedLists=new ArrayList<>();
+            authorizedLists=Collections.emptySet();
         }
         return authorizedLists;
     }
 
-    public List<GiftList> getOwnedLists() {
+    public Set<GiftList> getOwnedLists() {
         if(ownedLists==null){
-            ownedLists=new ArrayList<>();
+            ownedLists=Collections.emptySet();
         }
         return ownedLists;
+    }
+
+    public void setFriends(Set<AuthUser> friends) {
+        this.friends = friends;
+    }
+
+    public Set<AuthUser> getFriends() {
+        if(this.friends==null){
+            return Collections.emptySet();
+        }
+        return friends;
     }
 }
