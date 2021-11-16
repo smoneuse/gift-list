@@ -1,0 +1,30 @@
+<div class="row pt-4 mx-auto">
+    <div class="col-md-6 mx-auto">
+        <h1 class="display-5">Mes amis</h1>
+        <div class="mt-5">
+            <p class="lead">
+                Vos amis sont les personnes qui ont par défaut accès à vos listes de cadeaux.
+                <br/>
+                Ajoutez les ici pour leur donner accès à toues vos listes !
+            </p>
+        </div>
+        <div>
+            <div class="input-group mb-3">
+                <input  [(ngModel)]="friendToAdd" type="text" class="form-control" placeholder="login de votre ami" aria-label="Recipient's username" aria-describedby="addFriendButton">
+                <button (click)="addAFriend()" class="btn btn-outline-primary" type="button" id="addFriendButton">Ajouter un ami</button>
+            </div>
+            <div *ngIf="errorMessage!=''" class="alert alert-danger mt-4" role="alert">
+                {{errorMessage}}
+            </div>
+            <div class="mt-5" *ngIf="userFriendList.length===0">
+                <p>Aucun ami n'a encore été ajouté</p>
+            </div>
+            <div class="mt-5" *ngIf="userFriendList.length!==0">
+                <div class="input-group input-group mb-3" *ngFor="let aFriend of userFriendList">                    
+                    <input value="{{aFriend}}" type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" readonly>
+                    <button (click)="removeFriend(aFriend)" class="btn btn-warning" type="button" id="delLinkButton"><i class="bi bi-trash"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

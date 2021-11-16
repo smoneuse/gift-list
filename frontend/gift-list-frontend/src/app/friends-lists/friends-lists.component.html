@@ -1,0 +1,36 @@
+<div class="row pt-4 mx-auto">
+    <div class="col-md-6 mx-auto">
+        <h1 class="display-5">Listes partagées par vos amis</h1> 
+            <div *ngIf="allOwners.length !==0" class="mt-5">
+                <div class="accordion" id="accordionSharingUsers">
+                    <div *ngFor="let owner of allOwners" class="accordion-item">
+                      <h2 class="accordion-header" [id]="'heading'+owner">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" [attr.data-bs-target]="'#collapse'+owner" [attr.aria-controls]="'#collapse'+owner" aria-expanded="true">
+                            <h5>Listes partagées par {{owner}}</h5>
+                        </button>
+                      </h2>
+                      <div [id]="'collapse'+owner" class="accordion-collapse collapse" [attr.aria-labelledby]="'heading'+owner" data-bs-parent="#accordionSharingUsers">
+                        <div class="accordion-body">
+                            <div *ngFor="let aList of ownerGiftListMap.get(owner)" class="accordion-body">
+                                <div class="card">
+                                    <div class="card-header">                                      
+                                      <h5>{{aList.title}}<span class="badge bg-info float-end">{{countAvailableGifts(aList)}} cadeau(x) disponibles</span></h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <h6 class="card-subtitle mb-2 text-muted">{{aList.description}}</h6>
+                                        <a routerLink="/friendsListsDetail/{{aList.id}}" class="btn btn-outline-primary">Réserver des cadeaux de cette liste</a><span class="badge bg-secondary float-end">{{countReservedGifts(aList)}} cadeau(x) réservés</span>
+                                    </div>
+                                  </div>
+                            </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+            </div>
+            <div *ngIf="allOwners.length ===0" class="mt-5">
+                <p class="lead">
+                    Aucune liste n'est partagée avec vous pour le moment.
+                </p>
+            </div>
+    </div>
+</div>
