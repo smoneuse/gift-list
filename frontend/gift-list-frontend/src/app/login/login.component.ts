@@ -18,6 +18,13 @@ export class LoginComponent implements OnInit {
 
   loginUser() : void {
     this.errorMessage="";
+    if(this.loginUserData.login.trim()==="" || this.loginUserData.password.trim()===""){
+      this.errorMessage="Merci de renseigner le nom d'utilisateur et le mot de passe";
+      return
+    }
+    this.loginUserData.login=this.loginUserData.login.trim()
+    this.loginUserData.password=this.loginUserData.password.trim()
+
     this.auth.loginUser(this.loginUserData)
       .subscribe({
         next: (res)=> {

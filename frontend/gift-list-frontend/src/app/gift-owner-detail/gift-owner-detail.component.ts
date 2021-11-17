@@ -42,6 +42,9 @@ export class GiftOwnerDetailComponent implements OnInit {
             else if (err.status===404){
               this.errorMessage="Ce cadeau n'a pas été trouvé"
             }
+            else if(err.status === 401 || err.status === 403){
+              this.router.navigate(['/login'])
+            }
           }
         }
       })
@@ -75,6 +78,9 @@ export class GiftOwnerDetailComponent implements OnInit {
             }
             else if (err.status===404){
               this.errorMessage="Ce cadeau n'a pas été trouvé"
+            }
+            else if(err.status === 401 || err.status === 403){
+              this.router.navigate(['/login'])
             }
           }
         }

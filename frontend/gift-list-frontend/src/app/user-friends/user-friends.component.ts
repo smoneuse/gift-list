@@ -1,5 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { GiftListService } from '../services/gift-list.service';
 
 @Component({
@@ -13,7 +14,7 @@ export class UserFriendsComponent implements OnInit {
   errorMessage=""
   friendToAdd=""
 
-  constructor(private giftListService : GiftListService) { }
+  constructor(private giftListService : GiftListService, private router : Router) { }
 
   ngOnInit(): void {
     this.loadUserFriends()
@@ -31,6 +32,9 @@ export class UserFriendsComponent implements OnInit {
           if(err instanceof HttpErrorResponse){
             if(err.status=== 500 || err.status === 400 || err.status===404){
               this.errorMessage="Problème lors de la récupération des amis : "+err.error
+            }
+            else if(err.status === 401 || err.status === 403){
+              this.router.navigate(['/login'])
             }
           }
         }
@@ -54,6 +58,9 @@ export class UserFriendsComponent implements OnInit {
             if(err.status=== 500 || err.status === 400 || err.status===404){
               this.errorMessage="Problème lors de l'ajout d'un ami : "+err.error
             }
+            else if(err.status === 401 || err.status === 403){
+              this.router.navigate(['/login'])
+            }
           }
         }
       })
@@ -70,6 +77,9 @@ export class UserFriendsComponent implements OnInit {
           if(err instanceof HttpErrorResponse){
             if(err.status=== 500 || err.status === 400 || err.status===404){
               this.errorMessage="Problème lors de la suppression d'un ami : "+err.error
+            }
+            else if(err.status === 401 || err.status === 403){
+              this.router.navigate(['/login'])
             }
           }
         }

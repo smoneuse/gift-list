@@ -46,6 +46,9 @@ export class FriendsListsComponent implements OnInit {
             if(err.status === 500 || err.status === 400) {
               this.errorMessage="Une erreur est survenue lors du partage : "+err.error
             }
+            else if(err.status === 401 || err.status === 403){
+              this.router.navigate(['/login'])
+            }
           }  
         }
       })

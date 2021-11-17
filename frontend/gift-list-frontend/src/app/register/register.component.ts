@@ -26,6 +26,8 @@ export class RegisterComponent implements OnInit {
       this.errorMessage="Merci de ne pas positionner d'espace dans l'identifiant"
       return
     }
+    this.registerUserData.login=this.registerUserData.login.trim()
+    this.registerUserData.password=this.registerUserData.password.trim()
     this.auth.registerUser(this.registerUserData)
       .subscribe({
         next: (res)=> {

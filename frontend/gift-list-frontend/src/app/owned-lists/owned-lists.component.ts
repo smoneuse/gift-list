@@ -1,5 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { AddRevokeViewer } from '../model/addRevokeViewerToListModel';
 import { GiftList } from '../model/giftList';
 import { GiftListService } from '../services/gift-list.service';
@@ -16,7 +17,7 @@ export class OwnedListsComponent implements OnInit {
   listToDelete:GiftList=new GiftList();
   errorMessage=""
   currentFriend=""
-  constructor( private giftListService : GiftListService) { }
+  constructor( private giftListService : GiftListService, private router : Router) { }
 
   ngOnInit(): void {
     this.loadUserLists()
@@ -28,7 +29,19 @@ export class OwnedListsComponent implements OnInit {
         next: (response) =>{
             this.userLists=response
         },
-        error:(err)=> console.log(err)
+        error:(err)=>{
+          if(err instanceof HttpErrorResponse){
+            if(err.status === 404){
+              this.errorMessage="Vos listes n'ont pas été trouvées"
+            }
+            else if(err.status ===500 || err.status===400){
+              this.errorMessage="Problème lors de la récupération des listes :"+err.error
+            }
+            else if(err.status === 401 || err.status === 403){
+              this.router.navigate(['/login'])
+            }
+          }
+        }
       })
   }
 
@@ -61,7 +74,15 @@ export class OwnedListsComponent implements OnInit {
         },
         error: (err)=>{
           if(err instanceof HttpErrorResponse){
-            this.errorMessage="Une erreur est survenue lors de la suppression : "+err.error
+            if(err.status === 500 || err.status ===400){
+              this.errorMessage="Une erreur est survenue lors de la suppression : "+err.error
+            }
+            else if(err.status===404){
+              this.errorMessage="La liste à supprimer n'a pas été trouvée"
+            }
+            else if(err.status === 401 || err.status === 403){
+              this.router.navigate(['/login'])
+            }
           }  
         }
       })
@@ -82,8 +103,11 @@ export class OwnedListsComponent implements OnInit {
         },
         error:(err)=>{
           if(err instanceof HttpErrorResponse){
-            if(err.status === 500){
+            if(err.status === 500 || err.status===400){
               this.errorMessage="Une erreur est survenue lors de la création : "+err.error
+            }
+            else if(err.status === 401 || err.status === 403){
+              this.router.navigate(['/login'])
             }
           }          
         }
@@ -131,6 +155,9 @@ export class OwnedListsComponent implements OnInit {
             if(err.status === 500 || err.status === 400) {
               this.errorMessage="Une erreur est survenue lors du partage : "+err.error
             }
+            else if(err.status === 401 || err.status === 403){
+              this.router.navigate(['/login'])
+            }
           }  
         }
       })
@@ -162,6 +189,9 @@ export class OwnedListsComponent implements OnInit {
           if(err instanceof HttpErrorResponse){
             if(err.status === 500 || err.status === 400) {
               this.errorMessage="Une erreur est survenue lors de la suppression : "+err.error
+            }
+            else if(err.status === 401 || err.status === 403){
+              this.router.navigate(['/login'])
             }
           }  
         }
