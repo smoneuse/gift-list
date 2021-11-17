@@ -44,6 +44,9 @@ security:
   web:
     urls:
       -
+        pattern: /**
+        filters: anon
+      -
         pattern: /api/account/register
         filters: anon
       -

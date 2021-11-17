@@ -30,7 +30,7 @@ public class AuthUser extends BaseAggregateRoot<String>     {
             joinColumns = @JoinColumn( name = "login" ),
             inverseJoinColumns = @JoinColumn( name = "id" ) )
     private Set<GiftList> ownedLists;
-    @OneToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable( name = "T_Users_Friends_Associations",
             joinColumns = @JoinColumn( name = "login" ),
             inverseJoinColumns = @JoinColumn( name = "friendLogin" ) )
