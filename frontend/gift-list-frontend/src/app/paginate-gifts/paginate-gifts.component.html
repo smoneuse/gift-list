@@ -1,0 +1,54 @@
+<div *ngIf="availableGifts().length===0" class="mt-3">
+    <p>Aucun cadeau n'est associé à cette liste. Ajoutez en pleins !</p>
+</div>
+<div *ngIf="availableGifts().length!==0" class="row mt-1">
+    <nav class="pb-0">
+        <div class="d-flex justify-content-between">
+            <div>               
+                <ul class="pagination pagination-sm mb-0">   
+                    <p class="mb-0 pt-1">Page&nbsp;:&nbsp;</p>                 
+                    <li *ngFor="let in of countPages();let i = index" class="page-item" [class.active]="activePage===i+1" aria-current="page">
+                        <span (click)="setActivePage(i+1)" class="page-link">{{i+1}}</span>
+                    </li>
+                </ul>
+             </div>
+            <div class="mb-0 pt-1">
+                <select class="form-select form-select-sm float-end" (change)="reInitPagination()" [(ngModel)]="itemsPerPage" aria-label=".form-select-sm example">
+                    <option selected value="10">10 / page</option>
+                    <option value="20">20 / page</option>
+                    <option value="30">30 / page</option>
+                    </select>
+                </div>
+        </div>
+
+    </nav>
+    <div class="card mt-2" *ngFor="let aGift of paginatedGifts()" >
+        <div class="card-body py-2">
+             <h5 class="card-title">{{aGift.title}}&nbsp;<app-star-rating class="float-end" [(rating)]="aGift.rating" mode="view" fontSize="1rem"></app-star-rating></h5>
+        <h6 class="card-subtitle mb-2 text-muted">{{aGift.comment}}</h6>
+        <a type="button" routerLink="/listDetail/{{gList.id}}/{{aGift.giftId}}" class="btn btn-outline-primary btn-sm">Détails de ce cadeau</a>
+        </div>
+        <div class="card-footer py-2">
+            <small class="text-muted"><span class="badge bg-warning text-dark">{{aGift.links.length}} lien(s)</span>&nbsp;-&nbsp;Mis à jour le {{aGift.lastUpdate}}</small>
+            <button (click)="prepareDeleteGifPaginate(aGift)" type="button" data-bs-toggle="modal" data-bs-target="#deleteGiftModalInPaginate" class="btn btn-outline-danger btn-sm float-end">Supprimer</button>
+        </div>
+    </div>
+</div>
+<!-- Modal Delete Gift -->
+<div class="modal fade" id="deleteGiftModalInPaginate" tabindex="-1" aria-labelledby="deleteGiftModalInPaginateLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="deleteGiftModalInPaginateLabel">Suppression de cadeau PPP</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            Etes vous sûr de vouloir supprimer le cadeau "{{giftToDelete.title}}" ?
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+            <button (click)="deleteGiftPaginate()" type="button" class="btn btn-danger" data-bs-dismiss="modal">Supprimer</button>
+        </div>
+        </div>
+    </div>
+</div>

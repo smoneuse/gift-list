@@ -18,6 +18,8 @@ export class FriendsListDetailComponent implements OnInit {
   offeringDate : Date =new Date()
   currentList : GiftList =new GiftList()
   giftToReserveOrRelease : Gift = new Gift()
+  activePage:number =1
+  itemsPerPage =10
 
   constructor(private route: ActivatedRoute, private giftListService : GiftListService, private router : Router) { }
 
@@ -124,5 +126,41 @@ export class FriendsListDetailComponent implements OnInit {
           }
         }
       })
+  }
+
+  //Pagination
+  countPages(){
+    return new Array(Math.ceil(this.currentList.gifts.length / this.itemsPerPage))
+  }
+  setActivePage(pageIndex:number){
+    this.activePage=pageIndex
+  }
+  reInitPagination(){    
+    this.activePage=1
+  }
+
+  compareGifts( a : Gift, b :Gift) {
+    if ( a.title < b.title ){
+      return -1;
+    }
+    if ( a.title > b.title ){
+      return 1;
+    }
+    return 0;
+  }
+
+  paginatedGifts(){
+    let allGifts=this.currentList.gifts.sort(this.compareGifts)
+    let currentPageGifts : Gift[]=[]
+    let start = (this.activePage-1)*this.itemsPerPage
+    let end = ((this.activePage)*this.itemsPerPage)
+    if(end > allGifts.length){
+      end=allGifts.length
+    }
+
+    for(let index =start; index <end; index++){
+      currentPageGifts.push(allGifts[index])
+    }
+    return currentPageGifts
   }
 }

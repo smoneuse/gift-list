@@ -9,36 +9,55 @@
             <p>Il n'y a aucun cadeau de disponible ou réservés sur cette liste pour le moment</p>
         </div>        
         <div *ngIf="currentList.gifts.length!==0" class="mt-4">
-            <div *ngFor="let aGift of currentList.gifts" class="card mt-3">
-                <h5 class="card-header">{{aGift.title}}&nbsp;<span *ngIf="aGift.status==='AVAILABLE'" class="badge bg-primary">Disponible</span><span *ngIf="aGift.status==='RESERVED'" class="badge bg-secondary">Réservé</span><app-star-rating class="float-end" [(rating)]="aGift.rating" mode="view" fontSize="1rem"></app-star-rating></h5>
-                <div class="card-body">
-                  <p class="card-text"><small class="text-muted">{{aGift.comment}}</small></p>
-                  <div class="accordion" id="accordionLinks">
-                    <div class="accordion-item">
-                      <h2 class="accordion-header" [id]="'heading'+aGift.giftId">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" [attr.data-bs-target]="'#collapse'+aGift.giftId" aria-expanded="true" [attr.aria-controls]="'collapse'+aGift.giftId">
-                          Liens enregistrés
-                        </button>
-                      </h2>
-                      <div [id]="'collapse'+aGift.giftId" class="accordion-collapse collapse" [attr.aria-labelledby]="'heading'+aGift.giftId" data-bs-parent="#accordionLinks">
-                        <div *ngIf="aGift.links.length===0" class="accordion-body">
-                          <p>Aucun lien enregistré pour ce cadeau</p>
-                        </div>
-                        <div class="accordion-body">
-                            <div class="input-group input-group mb-1" *ngFor="let aLink of aGift.links">                    
-                                <input value="{{aLink}}" type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" readonly>
-                                <a class="btn btn-info" type="button" id="browseLinkButton" href="{{aLink}}" target="about:blank"><i class="bi bi-link"></i></a>
-                            </div>
-                        </div>                        
-                      </div>
+          <nav class="pb-0">
+            <div class="d-flex justify-content-between">
+                <div>               
+                    <ul class="pagination pagination-sm mb-0">   
+                        <p class="mb-0 pt-1">Page&nbsp;:&nbsp;</p>                 
+                        <li *ngFor="let in of countPages();let i = index" class="page-item" [class.active]="activePage===i+1" aria-current="page">
+                            <span (click)="setActivePage(i+1)" class="page-link">{{i+1}}</span>
+                        </li>
+                    </ul>
+                 </div>
+                <div class="mb-0 pt-1">
+                    <select class="form-select form-select-sm float-end" (change)="reInitPagination()" [(ngModel)]="itemsPerPage" aria-label=".form-select-sm example">
+                        <option selected value="10">10 / page</option>
+                        <option value="20">20 / page</option>
+                        <option value="30">30 / page</option>
+                        </select>
                     </div>
-                  </div>
-                  <button *ngIf="aGift.status==='AVAILABLE'" (click)="prepareOffering(aGift)" class="btn btn-sm btn-success mt-2" data-bs-toggle="modal" data-bs-target="#dateModal">Réserver ce cadeau</button>                  
-                  <div *ngIf="aGift.status==='RESERVED'" class="mt-2">
-                    <p>Vous offrirez ce cadeau le {{aGift.offeringDate}}<button (click)="releaseGift(aGift)" class="btn btn-sm btn-warning float-end">Annuler la réservation</button></p>
+            </div>    
+        </nav>       
+        <div *ngFor="let aGift of paginatedGifts()" class="card mt-3">
+            <h5 class="card-header">{{aGift.title}}&nbsp;<span *ngIf="aGift.status==='AVAILABLE'" class="badge bg-primary">Disponible</span><span *ngIf="aGift.status==='RESERVED'" class="badge bg-secondary">Réservé</span><app-star-rating class="float-end" [(rating)]="aGift.rating" mode="view" fontSize="1rem"></app-star-rating></h5>
+            <div class="card-body">
+              <p class="card-text"><small class="text-muted">{{aGift.comment}}</small></p>
+              <div class="accordion" id="accordionLinks">
+                <div class="accordion-item">
+                  <h2 class="accordion-header" [id]="'heading'+aGift.giftId">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" [attr.data-bs-target]="'#collapse'+aGift.giftId" aria-expanded="true" [attr.aria-controls]="'collapse'+aGift.giftId">
+                      Liens enregistrés
+                    </button>
+                  </h2>
+                  <div [id]="'collapse'+aGift.giftId" class="accordion-collapse collapse" [attr.aria-labelledby]="'heading'+aGift.giftId" data-bs-parent="#accordionLinks">
+                    <div *ngIf="aGift.links.length===0" class="accordion-body">
+                      <p>Aucun lien enregistré pour ce cadeau</p>
+                    </div>
+                    <div class="accordion-body">
+                        <div class="input-group input-group mb-1" *ngFor="let aLink of aGift.links">                    
+                            <input value="{{aLink}}" type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" readonly>
+                            <a class="btn btn-info" type="button" id="browseLinkButton" href="{{aLink}}" target="about:blank"><i class="bi bi-link"></i></a>
+                        </div>
+                    </div>                        
                   </div>
                 </div>
               </div>
+              <button *ngIf="aGift.status==='AVAILABLE'" (click)="prepareOffering(aGift)" class="btn btn-sm btn-success mt-2" data-bs-toggle="modal" data-bs-target="#dateModal">Réserver ce cadeau</button>                  
+              <div *ngIf="aGift.status==='RESERVED'" class="mt-2">
+                <p>Vous offrirez ce cadeau le {{aGift.offeringDate}}<button (click)="releaseGift(aGift)" class="btn btn-sm btn-warning float-end">Annuler la réservation</button></p>
+              </div>
+            </div>
+          </div>
         </div>
     </div>
 </div>

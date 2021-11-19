@@ -15,7 +15,6 @@ export class ListDetailComponent implements OnInit {
   currentList:GiftList=new GiftList()
   editedList: GiftList= new GiftList()
   createdGift:Gift= new Gift()
-  giftToDelete:Gift= new Gift()
   currentFriend=""
   currentlink=""
   errorMessage=""
@@ -121,32 +120,6 @@ export class ListDetailComponent implements OnInit {
       return 1;
     }
     return 0;
-  }
-
-  prepareDeleteGif(gift : Gift){
-    this.giftToDelete=gift
-  }
-
-  deleteGift(giftId: string){
-    this.errorMessage=""    
-    this.giftListService.deleteGift(this.listId, giftId)
-      .subscribe({
-        next:(res)=>{
-          console.log(`Gift ${giftId} deleted`)
-          this.giftToDelete=new Gift()
-          this.loadList()
-        },
-        error:(err)=>{
-          if(err instanceof HttpErrorResponse){
-            if(err.status === 500 || err.status === 400){
-              this.errorMessage="Une erreur est survenue lors de la suppression : "+err.error
-            }
-            else if(err.status === 401 || err.status === 403){
-              this.router.navigate(['/login'])
-            }
-          }
-        }
-      })
   }
 
   addLink(){
