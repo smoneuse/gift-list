@@ -96,9 +96,6 @@ public class GiftListsServiceImpl implements GiftListsService{
     @Override
     public GiftList addGift(Gift gift, String giftListId) throws GiftListException {
         GiftList giftList = single(giftListId).orElseThrow(()-> new GiftListException("Can't create gift : gift list not found :"+giftListId));
-        if(giftList.getGifts().stream().filter(aGift-> aGift.getTitle().equals(gift.getTitle())).count()!=0){
-            throw new GiftListException("Can't create Gift : a gift with same title already exist in the same list");
-        }
         giftList.addGift(gift);
         return giftListRepository.update(giftList);
     }

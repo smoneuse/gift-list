@@ -36,7 +36,7 @@ public interface GiftListsService {
      * @param gift the gift to add
      * @param giftListId the gist list identifier
      * @return the updated Gift list
-     * @throws GiftListException gift list doesn't exist / Gift with same title already exist in the list
+     * @throws GiftListException gift list doesn't exist
      */
     public GiftList addGift(Gift gift, String giftListId) throws GiftListException;
     /**
