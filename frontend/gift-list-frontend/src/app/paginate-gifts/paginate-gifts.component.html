@@ -12,12 +12,24 @@
                     </li>
                 </ul>
              </div>
-            <div class="mb-0 pt-1">
-                <select class="form-select form-select-sm float-end" (change)="reInitPagination()" [(ngModel)]="itemsPerPage" aria-label=".form-select-sm example">
-                    <option selected value="10">10 / page</option>
-                    <option value="20">20 / page</option>
-                    <option value="30">30 / page</option>
-                    </select>
+             <div class="d-flex justify-content-between">
+                    <div class="mb-0 pt-1">
+                        <select class="form-select form-select-sm float-end" (change)="reInitPagination()" [(ngModel)]="itemsPerPage" aria-label=".form-select-sm example">
+                            <option selected value="10">10 / page</option>
+                            <option value="20">20 / page</option>
+                            <option value="30">30 / page</option>
+                            </select>
+                    </div>
+                    <div class="dropdown ms-1">
+                        <button class="btn btn-outline-secondary btn-sm dropdown-toggle mt-1 pt-1" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-filter"></i>
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                        <li><a (click)="setSortByTitle()" class="dropdown-item">Trier par titre&nbsp;<i style="color: #0a8b20;" *ngIf="sortingParameter=='title'" class="bi bi-check"></i></a></li>
+                        <li><a (click)="setSortByRating()" class="dropdown-item" >Trier par préférence&nbsp;<i style="color: #0a8b20;" *ngIf="sortingParameter=='rating'" class="bi bi-check"></i></a></li>
+                        <li><a (click)="setSortByDate()" class="dropdown-item" >Trier par date&nbsp;<i style="color: #0a8b20;" *ngIf="sortingParameter=='date'" class="bi bi-check"></i></a></li>
+                        </ul>
+                    </div>
                 </div>
         </div>
 

@@ -20,8 +20,12 @@ export class PaginateGiftsComponent implements OnInit {
   giftToDelete : Gift = new Gift()
   activePage:number =1
   itemsPerPage =10
+  sortingParameter="title"
+  sortingFunction=this.compareGiftsByTitle.bind(this)
+  sortOrder=1
 
-  constructor(private giftListService : GiftListService, private router : Router) { }
+  constructor(private giftListService : GiftListService, private router : Router) { 
+  }
 
   ngOnInit(): void {
   }
@@ -35,8 +39,8 @@ export class PaginateGiftsComponent implements OnInit {
       if(aGift.status ==="AVAILABLE"){
         resultingGifts.push(aGift)
       }
-    }
-    return resultingGifts.sort(this.compareGifts)
+    }        
+    return resultingGifts.sort(this.sortingFunction)
   }
   reInitPagination(){    
     this.activePage=1
@@ -65,14 +69,86 @@ export class PaginateGiftsComponent implements OnInit {
     this.activePage=pageIndex
   }
 
-  compareGifts( a : Gift, b :Gift) {
+  compareGiftsByTitle( a : Gift, b :Gift) {
     if ( a.title < b.title ){
-      return -1;
+      return this.sortOrder*-1;
     }
     if ( a.title > b.title ){
-      return 1;
+      return this.sortOrder*1;
     }
     return 0;
+  }
+
+  compareGiftsByRating( a : Gift, b :Gift) {
+    if ( a.rating < b.rating ){
+      return this.sortOrder*-1;
+    }
+    if ( a.rating > b.rating ){
+      return this.sortOrder*1;
+    }
+    //Same rating : compare by title
+    return this.compareGiftsByTitle(a,b);
+  }
+
+  compareGiftsByDate( a : Gift, b :Gift) {   
+    let dateInfoA = a.lastUpdate.split('/')
+    let dateInfoB = b.lastUpdate.split('/')
+    let dateA  : Date= new Date()
+    let dateB  : Date= new Date()
+    dateA.setDate(+dateInfoA[0])
+    dateA.setMonth(+dateInfoA[1])
+    dateA.setFullYear(+dateInfoA[2])
+    dateB.setDate(+dateInfoB[0])
+    dateB.setMonth(+dateInfoB[1])
+    dateB.setFullYear(+dateInfoB[2])
+    dateA.setHours(0,0,0,0)
+    dateB.setHours(0,0,0,0)
+    if ( dateA < dateB ){
+      return this.sortOrder*-1;
+    }
+    if ( dateA > dateB ){
+      return this.sortOrder*1;
+    }
+    //Same date : compare by title       
+    return this.compareGiftsByTitle(a,b);
+  }
+
+  testMe( a : Gift, b :Gift){
+    console.log(a)
+    console.log(b)
+  }
+
+  setSortByTitle(){
+    if(this.sortingParameter==="title"){
+      this.sortOrder *= -1
+
+    }
+    else{
+      this.sortingParameter="title"
+      this.sortingFunction=this.compareGiftsByTitle.bind(this)
+    }
+  }
+
+  setSortByRating(){
+    if(this.sortingParameter==="rating"){
+      this.sortOrder *= -1
+    }
+    else{
+      this.sortOrder=1
+      this.sortingParameter="rating"
+      this.sortingFunction=this.compareGiftsByRating.bind(this)
+    }
+  }
+
+  setSortByDate(){
+    if(this.sortingParameter==="date"){
+      this.sortOrder *= -1
+    }
+    else{
+      this.sortOrder=1
+      this.sortingParameter="date"
+      this.sortingFunction=this.compareGiftsByDate.bind(this)
+    }
   }
 
   loadList(listId : string){
