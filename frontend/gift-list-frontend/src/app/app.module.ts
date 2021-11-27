@@ -19,6 +19,7 @@ import { GiftOwnerDetailComponent } from './gift-owner-detail/gift-owner-detail.
 import { StarRatingComponent } from './star-rating/star-rating.component';
 import { FriendsListDetailComponent } from './friends-list-detail/friends-list-detail.component';
 import { UserFriendsComponent } from './user-friends/user-friends.component';
+import { PaginateGiftsComponent } from './paginate-gifts/paginate-gifts.component';
 
 @NgModule({
   declarations: [
@@ -32,7 +33,8 @@ import { UserFriendsComponent } from './user-friends/user-friends.component';
     GiftOwnerDetailComponent,
     StarRatingComponent,
     FriendsListDetailComponent,
-    UserFriendsComponent
+    UserFriendsComponent,
+    PaginateGiftsComponent
   ],
   imports: [
     BrowserModule,
@@ -41,7 +43,8 @@ import { UserFriendsComponent } from './user-friends/user-friends.component';
     HttpClientModule
   ],
   providers: [
-    { provide: 'BASE_BACKEND_URL', useValue:'http://localhost:8080/api' },
+    { provide: 'BASE_BACKEND_URL', useValue:'http://gift.freeboxos.fr:33333/api' },
+    //{ provide: 'BASE_BACKEND_URL', useValue:'http://localhost:8080/api' },
     {
       provide:HTTP_INTERCEPTORS,
       useClass:AuthInterceptorService,
