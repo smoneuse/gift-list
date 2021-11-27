@@ -20,6 +20,9 @@ export class FriendsListDetailComponent implements OnInit {
   giftToReserveOrRelease : Gift = new Gift()
   activePage:number =1
   itemsPerPage =10
+  sortingParameter : string ="title"
+  sortOrder : number =1
+  sortingFunction =this.compareGiftsByTitle.bind(this)
 
   constructor(private route: ActivatedRoute, private giftListService : GiftListService, private router : Router) { }
 
@@ -139,18 +142,82 @@ export class FriendsListDetailComponent implements OnInit {
     this.activePage=1
   }
 
-  compareGifts( a : Gift, b :Gift) {
-    if ( a.title < b.title ){
-      return -1;
+  compareGiftsByTitle(a :Gift, b: Gift) {
+      if ( a.title < b.title ){
+        return this.sortOrder*-1;
+      }
+      if ( a.title > b.title ){
+        return this.sortOrder*1;
+      }
+      return 0;
+  }
+
+  compareGiftByRating(a:Gift, b:Gift){
+    if ( a.rating < b.rating ){
+      return this.sortOrder*-1;
     }
-    if ( a.title > b.title ){
-      return 1;
+    if ( a.rating > b.rating ){
+      return this.sortOrder*1;
     }
-    return 0;
+    return this.compareGiftsByTitle(a,b);
+  }
+
+  compareGiftByDate(a:Gift, b:Gift) {
+    let dateInfoA = a.lastUpdate.split('/')
+    let dateInfoB = b.lastUpdate.split('/')
+    let dateA  : Date= new Date()
+    let dateB  : Date= new Date()
+    dateA.setDate(+dateInfoA[0])
+    dateA.setMonth(+dateInfoA[1])
+    dateA.setFullYear(+dateInfoA[2])
+    dateB.setDate(+dateInfoB[0])
+    dateB.setMonth(+dateInfoB[1])
+    dateB.setFullYear(+dateInfoB[2])
+    dateA.setHours(0,0,0,0)
+    dateB.setHours(0,0,0,0)
+    if ( dateA < dateB ){
+      return this.sortOrder*-1;
+    }
+    if ( dateA > dateB ){
+      return this.sortOrder*1;
+    }
+    //Same date : compare by title       
+    return this.compareGiftsByTitle(a,b);
+  }
+
+  setSortByTitle(){
+    if(this.sortingParameter==="title"){
+      this.sortOrder *=-1
+    }
+    else{
+      this.sortingParameter="title"
+      this.sortOrder =1
+      this.sortingFunction=this.compareGiftsByTitle.bind(this)
+    }
+  }
+  setSortByRating(){
+    if(this.sortingParameter==="rating"){
+      this.sortOrder *=-1
+    }
+    else{
+      this.sortingParameter="rating"
+      this.sortOrder =1
+      this.sortingFunction=this.compareGiftByRating.bind(this)
+    }
+  }
+  setSortByDate(){
+    if(this.sortingParameter==="date"){
+      this.sortOrder *=-1
+    }
+    else{
+      this.sortingParameter="date"
+      this.sortOrder =1
+      this.sortingFunction=this.compareGiftByDate.bind(this)
+    }
   }
 
   paginatedGifts(){
-    let allGifts=this.currentList.gifts.sort(this.compareGifts)
+    let allGifts=this.currentList.gifts.sort(this.sortingFunction)
     let currentPageGifts : Gift[]=[]
     let start = (this.activePage-1)*this.itemsPerPage
     let end = ((this.activePage)*this.itemsPerPage)

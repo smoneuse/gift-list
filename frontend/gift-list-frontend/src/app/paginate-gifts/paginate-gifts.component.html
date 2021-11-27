@@ -25,9 +25,9 @@
                             <i class="bi bi-filter"></i>
                         </button>
                         <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                        <li><a (click)="setSortByTitle()" class="dropdown-item">Trier par titre&nbsp;<i style="color: #0a8b20;" *ngIf="sortingParameter=='title'" class="bi bi-check"></i></a></li>
-                        <li><a (click)="setSortByRating()" class="dropdown-item" >Trier par préférence&nbsp;<i style="color: #0a8b20;" *ngIf="sortingParameter=='rating'" class="bi bi-check"></i></a></li>
-                        <li><a (click)="setSortByDate()" class="dropdown-item" >Trier par date&nbsp;<i style="color: #0a8b20;" *ngIf="sortingParameter=='date'" class="bi bi-check"></i></a></li>
+                            <li><a (click)="setSortByTitle()" class="dropdown-item">Trier par titre&nbsp;<i style="color: #0a8b20;" *ngIf="sortingParameter=='title' && sortOrder==-1" class="bi bi-caret-up-fill"></i><i style="color: #0a8b20;" *ngIf="sortingParameter=='title' && sortOrder==1" class="bi bi-caret-down-fill"></i></a></li>
+                            <li><a (click)="setSortByRating()" class="dropdown-item" >Trier par préférence&nbsp;<i style="color: #0a8b20;" *ngIf="sortingParameter=='rating' && sortOrder==-1" class="bi bi-caret-up-fill"></i><i style="color: #0a8b20;" *ngIf="sortingParameter=='rating' && sortOrder==1" class="bi bi-caret-down-fill"></i></a></li>
+                            <li><a (click)="setSortByDate()" class="dropdown-item" >Trier par date&nbsp;<i style="color: #0a8b20;" *ngIf="sortingParameter=='date' && sortOrder==-1" class="bi bi-caret-up-fill"></i><i style="color: #0a8b20;" *ngIf="sortingParameter=='date' && sortOrder==1" class="bi bi-caret-down-fill"></i></a></li>
                         </ul>
                     </div>
                 </div>
