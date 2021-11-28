@@ -91,9 +91,6 @@ public class GiftServiceImpl implements GiftService{
     public Gift update(String giftListId, String giftId, String newTitle, String newComment, int newRating) throws GiftListException {
         GiftList giftList= giftListsService.single(giftListId).orElseThrow(()->new GiftListException("Can't update gift : list not found :"+giftListId));
         Gift actualGift = giftRepository.get(giftId).orElseThrow(()-> new GiftListException("Can't update gift : gift not found : "+giftId));
-        if(giftList.getGifts().stream().filter(aGift-> aGift.getTitle().equals(newTitle) && !aGift.getId().equals(actualGift.getId())).count()!=0){
-            throw new GiftListException("Can't update gift : another gift with same title already exist in the list");
-        }
         actualGift.titleCommentRate(newTitle, newComment, newRating);
         return giftRepository.update(actualGift);
     }
