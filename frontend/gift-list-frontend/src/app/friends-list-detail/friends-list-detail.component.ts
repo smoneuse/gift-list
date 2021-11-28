@@ -135,8 +135,9 @@ export class FriendsListDetailComponent implements OnInit {
   countPages(){
     return new Array(Math.ceil(this.currentList.gifts.length / this.itemsPerPage))
   }
-  setActivePage(pageIndex:number){
+  setActivePage(pageIndex:number, el: HTMLElement){
     this.activePage=pageIndex
+    el.scrollIntoView()
   }
   reInitPagination(){    
     this.activePage=1

@@ -1,4 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
+import { elementEventFullName } from '@angular/compiler/src/view_compiler/view_compiler';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Router } from '@angular/router';
 import { Gift } from '../model/gift';
@@ -65,10 +66,10 @@ export class PaginateGiftsComponent implements OnInit {
     return new Array(Math.ceil(this.availableGifts().length / this.itemsPerPage))
   }
 
-  setActivePage(pageIndex:number){
+  setActivePage(pageIndex:number, el: HTMLElement){
     this.activePage=pageIndex
+    el.scrollIntoView()
   }
-
   compareGiftsByTitle( a : Gift, b :Gift) {
     if ( a.title < b.title ){
       return this.sortOrder*-1;

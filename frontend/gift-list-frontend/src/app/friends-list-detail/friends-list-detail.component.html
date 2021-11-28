@@ -8,14 +8,14 @@
         <div *ngIf="currentList.gifts.length===0" class="mt-4">
             <p>Il n'y a aucun cadeau de disponible ou réservés sur cette liste pour le moment</p>
         </div>        
-        <div *ngIf="currentList.gifts.length!==0" class="mt-4">
+        <div *ngIf="currentList.gifts.length!==0" class="mt-4" #displayedGifts>
           <nav class="pb-0">
             <div class="d-flex justify-content-between">
                 <div>               
                     <ul class="pagination pagination-sm mb-0">   
                         <p class="mb-0 pt-1">Page&nbsp;:&nbsp;</p>                 
                         <li *ngFor="let in of countPages();let i = index" class="page-item" [class.active]="activePage===i+1" aria-current="page">
-                            <span (click)="setActivePage(i+1)" class="page-link" style="cursor: pointer">{{i+1}}</span>
+                            <span (click)="setActivePage(i+1, displayedGifts)" class="page-link" style="cursor: pointer">{{i+1}}</span>
                         </li>
                     </ul>
                  </div>
@@ -76,7 +76,7 @@
                     <ul class="pagination pagination-sm mb-0">   
                         <p class="mb-0 pt-1">Page&nbsp;:&nbsp;</p>                 
                         <li *ngFor="let in of countPages();let i = index" class="page-item" [class.active]="activePage===i+1" aria-current="page">
-                            <span (click)="setActivePage(i+1)" class="page-link" style="cursor: pointer">{{i+1}}</span>
+                            <span (click)="setActivePage(i+1,displayedGifts)" class="page-link" style="cursor: pointer">{{i+1}}</span>
                         </li>
                     </ul>
                  </div>
