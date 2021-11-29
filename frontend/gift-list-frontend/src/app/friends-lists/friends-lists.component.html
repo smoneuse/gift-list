@@ -11,7 +11,7 @@
                       </h2>
                       <div [id]="'collapse'+ownerIndex" class="accordion-collapse collapse" [attr.aria-labelledby]="'heading'+ownerIndex" data-bs-parent="#accordionSharingUsers">
                         <div class="accordion-body">
-                            <div *ngFor="let aList of ownerGiftListMap.get(owner)" class="accordion-body">
+                            <div *ngFor="let aList of ownerGiftListMap.get(owner).sort(compareLists)" class="accordion-body">
                                 <div class="card">
                                     <div class="card-header">                                      
                                       <h5>{{aList.title}}<span class="badge bg-info float-end">{{countAvailableGifts(aList)}} cadeau(x) disponibles</span></h5>

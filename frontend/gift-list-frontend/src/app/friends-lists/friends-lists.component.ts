@@ -39,6 +39,7 @@ export class FriendsListsComponent implements OnInit {
             gListArray.push(aList)
             responseMap.set(aList.owner,gListArray)
           }
+          this.allOwners.sort(this.compareOwners)          
           this.ownerGiftListMap= responseMap         
         },
         error: (err)=>{
@@ -52,6 +53,26 @@ export class FriendsListsComponent implements OnInit {
           }  
         }
       })
+  }
+
+  compareOwners(ownerA : string, ownerB: string){
+    if (ownerA.toLowerCase() < ownerB.toLowerCase() ){
+      return -1;
+    }
+    if ( ownerA.toLowerCase() > ownerB.toLowerCase() ){
+      return 1;
+    }
+    return 0;
+  }
+
+  compareLists(listA: GiftList, listB : GiftList){
+    if (listA.title.toLowerCase() < listB.title.toLowerCase() ){
+      return -1;
+    }
+    if ( listA.title.toLowerCase() > listB.title.toLowerCase() ){
+      return 1;
+    }
+    return 0;
   }
 
   countAvailableGifts( aList : GiftList ) : number {
