@@ -1,7 +1,9 @@
 package org.scilab.giftlist.resources.gifts;
 
+import org.apache.commons.lang3.StringUtils;
 import org.scilab.giftlist.domain.models.list.Gift;
 import org.scilab.giftlist.domain.models.list.GiftList;
+import org.scilab.giftlist.domain.models.list.GiftTag;
 import org.scilab.giftlist.infra.exceptions.GiftListException;
 import org.scilab.giftlist.infra.exceptions.GiftListInvalidParameterException;
 import org.scilab.giftlist.internal.account.AccountService;
@@ -26,6 +28,8 @@ import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -106,7 +110,7 @@ public class GiftResource {
         }
         Gift createdGift=null;
         try {
-            createdGift = giftService.createGift(giftModel.getListId(), giftModel.getTitle(), giftModel.getComment(), giftModel.getRating(), giftModel.getLinks());
+            createdGift = giftService.createGift(giftModel.getListId(), giftModel.getTitle(), giftModel.getComment(), giftModel.getRating(), giftModel.getLinks(), giftModel.getTags());
             Optional<GiftResponseModel> responseOpt = buildGiftResponse(createdGift, requiredList);
             if(!responseOpt.isPresent()){
                 Response errorResponse = Response.status(400).entity("You have no permission on that gift").build();
@@ -155,6 +159,15 @@ public class GiftResource {
                     giftService.removeLink(updated.getId(), giftLink);
                 }
             }
+            List<String> lowerCaseTags=getLowerCaseTags(giftModel);
+            for (GiftTag actualTag :updated.getTags()){
+                if(!lowerCaseTags.contains(actualTag.getName())){
+                    giftService.removeTag(updated.getId(), actualTag.getName());
+                }
+            }
+            for(String tagToAddOrPresent : lowerCaseTags){
+                giftService.addTag(updated.getId(), tagToAddOrPresent);
+            }
             Optional<GiftResponseModel> responseOpt = buildGiftResponse(updated, requiredList);
             if(!responseOpt.isPresent()){
                 Response errorResponse = Response.status(400).entity("You have no permission on that gift").build();
@@ -166,6 +179,19 @@ public class GiftResource {
             logger.warn("Exception while user {}, attempted to update gift {} : {}", currentUserLogin, giftModel.getGiftId(), gle.getMessage());
             throw new InternalServerErrorException("Exception while updating gift :"+gle.getMessage());
         }
+    }
+
+    private List<String> getLowerCaseTags(GiftCreateUpdateRequestModel giftModel){
+        if(giftModel.getTags()==null || giftModel.getTags().isEmpty()){
+            return Collections.emptyList();
+        }
+        List<String> lowerCaseList= new ArrayList<>();
+        for(String aTag : giftModel.getTags()){
+            if(StringUtils.isNotBlank(aTag.trim())){
+                lowerCaseList.add(aTag.trim().toLowerCase());
+            }
+        }
+        return lowerCaseList;
     }
 
     @DELETE

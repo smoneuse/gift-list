@@ -12,7 +12,9 @@ import org.seedstack.business.domain.BaseAggregateRoot;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 public class Gift extends BaseAggregateRoot<String> {
@@ -30,6 +32,11 @@ public class Gift extends BaseAggregateRoot<String> {
     private Date deliveryDate;
     private Date creationDate;
     private Date lastUpdateDate;
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable( name = "T_Gifts_Tags_Associations",
+            joinColumns = @JoinColumn( name = "giftId" ),
+            inverseJoinColumns = @JoinColumn( name = "tagName" ) )
+    private Set<GiftTag> tags;
 
     /**Empty constructor required for hibernate*/
     public Gift(){}
@@ -39,6 +46,7 @@ public class Gift extends BaseAggregateRoot<String> {
         this.status =GiftStatus.AVAILABLE.toString();
         this.creationDate=new Date(System.currentTimeMillis());
         this.lastUpdateDate= new Date(System.currentTimeMillis());
+        this.tags = new HashSet<>();
     }
 
     public void titleCommentRate(String title, String comment, int rating) throws GiftListException {
@@ -112,6 +120,36 @@ public class Gift extends BaseAggregateRoot<String> {
         this.lastUpdateDate=new Date(System.currentTimeMillis());
     }
 
+    /**
+     * Adds a tag to a gift
+     * @param aTag a gift tag
+     * @throws GiftListException tag in parameter is not valid
+     */
+    public void addTag(GiftTag aTag) throws GiftListException{
+        if(aTag==null){
+            throw new GiftListInvalidParameterException("Cannot add an empty tag to a gift");
+        }
+        if(this.tags==null){
+            this.tags= new HashSet<>();
+        }
+        this.tags.add(aTag);
+    }
+
+    /**
+     * Removes a tag from a Gift
+     * @param aTag the tag to remove
+     * @throws GiftListException null tag provided
+     */
+    public void removeTag(GiftTag aTag) throws GiftListException{
+        if(aTag==null){
+            throw new GiftListInvalidParameterException("Cannot remove a non provided tag");
+        }
+        if(this.tags==null|| this.tags.isEmpty()){
+            return;
+        }
+        this.tags.removeIf(someTag-> someTag.getName().equalsIgnoreCase(aTag.getName()));
+    }
+
     public String getTitle() {
         return title;
     }
@@ -146,6 +184,14 @@ public class Gift extends BaseAggregateRoot<String> {
 
     public Date getLastUpdateDate() {
         return lastUpdateDate;
+    }
+
+    public void setTags(Set<GiftTag> tags) {
+        this.tags = tags;
+    }
+
+    public Set<GiftTag> getTags() {
+        return tags;
     }
 
     @Override

@@ -21,17 +21,18 @@ public interface GiftService {
      * @param comment a comment on a gift
      * @param rating the gift rating
      * @param links the links to the gift
+     * @param tags the gift tags
      * @return The created Gift
      * @throws GiftListException list doesn't exist / title is not set or already exist in the list
      */
-    public Gift createGift(String giftListId, String title, String comment, int rating, List<String> links) throws GiftListException;
+     Gift createGift(String giftListId, String title, String comment, int rating, List<String> links, List<String> tags) throws GiftListException;
 
     /**
      * Provides a single gift by its identifier
      * @param giftId thr gift identifier
      * @return @{@link Optional}&lt;@{@link Gift}&gt; the required gift
      */
-    public Optional<Gift> single(String giftId);
+     Optional<Gift> single(String giftId);
 
     /**
      * Deletes a gift
@@ -39,7 +40,7 @@ public interface GiftService {
      * @param listId the list identifier
      * @throws GiftListException Issue while removing the gift
      */
-    public void remove(String listId,String giftId) throws GiftListException;
+     void remove(String listId,String giftId) throws GiftListException;
 
     /**
      * Updates a gift
@@ -51,7 +52,7 @@ public interface GiftService {
      * @return the updated @{@link Gift}
      * @throws GiftListException Gift identifier is not provided / Title already exist in the same list
      */
-    public Gift update(String giftListId,String giftId, String newTitle, String newComment, int newRating) throws GiftListException;
+     Gift update(String giftListId,String giftId, String newTitle, String newComment, int newRating) throws GiftListException;
 
     /**
      * Reserves a gift
@@ -61,7 +62,7 @@ public interface GiftService {
      * @return the updated Gift
      * @throws GiftListException gift not found / user not found / Gift is not available
      */
-    public Gift reserve(String giftId, String giverLogin, Date offeringDate) throws GiftListException;
+     Gift reserve(String giftId, String giverLogin, Date offeringDate) throws GiftListException;
 
     /**
      * Releases a reserved gift
@@ -70,7 +71,7 @@ public interface GiftService {
      * @return @{@link Gift} the updated gift
      * @throws GiftListException Gift not found / user not found / Gift is not reserved / giver provided is not correct
      */
-    public Gift release(String giftId, String giverLogin) throws GiftListException;
+     Gift release(String giftId, String giverLogin) throws GiftListException;
 
     /**
      * Sets the gift to given status
@@ -79,13 +80,13 @@ public interface GiftService {
      * @return @{@link Gift} updated gift
      * @throws GiftListException Gift could not be found
      */
-    public Gift setOffered(String giftId) throws GiftListException;
+     Gift setOffered(String giftId) throws GiftListException;
 
     /**
      * Scan the repository for gifts with delivering dates older than the current date and set them offered
      * @return @{@link List}&lt;@{@link Gift}&gt; the updated gifts
      */
-    public List<Gift> scanAndSetOffered();
+     List<Gift> scanAndSetOffered();
 
     /**
      * Adds a link to a gift
@@ -94,7 +95,7 @@ public interface GiftService {
      * @return @{@link Gift} the updated gift
      * @throws GiftListException Gift not found
      */
-    public Gift addLink(String giftId, String link) throws GiftListException;
+     Gift addLink(String giftId, String link) throws GiftListException;
 
 
     /**
@@ -104,5 +105,23 @@ public interface GiftService {
      * @return @{@link Gift} the updated gift
      * @throws GiftListException Gift not found
      */
-    public Gift removeLink(String giftId, String link) throws GiftListException;
+     Gift removeLink(String giftId, String link) throws GiftListException;
+
+    /**
+     * Adds a tag to a gift
+     * @param giftId the gift identifier
+     * @param aTag the tag to add
+     * @return @{@link Gift} the updated Gift
+     * @throws GiftListException Gift not found
+     */
+     Gift addTag(String giftId,String aTag) throws GiftListException;
+
+    /**
+     * Removes a tag from a gift
+     * @param giftId the gift Identifier
+     * @param tagToRemove the tag to remove
+     * @return @{@link Gift} the updated gift
+     * @throws GiftListException Gift not found
+     */
+     Gift removeTag(String giftId, String tagToRemove) throws GiftListException;
 }

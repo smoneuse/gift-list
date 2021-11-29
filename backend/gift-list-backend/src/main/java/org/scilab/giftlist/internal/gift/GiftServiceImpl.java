@@ -1,8 +1,10 @@
 package org.scilab.giftlist.internal.gift;
 
 import com.google.common.base.Strings;
+import org.apache.commons.lang3.StringUtils;
 import org.scilab.giftlist.domain.models.list.Gift;
 import org.scilab.giftlist.domain.models.list.GiftList;
+import org.scilab.giftlist.domain.models.list.GiftTag;
 import org.scilab.giftlist.domain.models.security.AuthUser;
 import org.scilab.giftlist.infra.exceptions.GiftListException;
 import org.scilab.giftlist.infra.security.GiftListRoles;
@@ -39,19 +41,28 @@ public class GiftServiceImpl implements GiftService{
     private Repository<GiftList, String> giftListRepository;
 
     @Inject
+    @Jpa
+    private Repository<GiftTag, String> giftTagsRepository;
+
+    @Inject
     private GiftListsService giftListsService;
 
     @Inject
     private AuthUserService authUserService;
 
     @Override
-    public Gift createGift(String giftListId, String title, String comment, int rating, List<String> links) throws GiftListException {
+    public Gift createGift(String giftListId, String title, String comment, int rating, List<String> links, List<String> tags) throws GiftListException {
         Gift createdGift =new Gift(UUID.randomUUID().toString());
         try {
             createdGift.titleCommentRate(title, comment, rating);
             if(links!=null){
                 for(String link : links){
                     createdGift.addLink(link);
+                }
+            }
+            if(tags !=null){
+                for(String aTag : tags){
+                    createdGift.addTag(getOrCreateTag(aTag));
                 }
             }
             giftRepository.add(createdGift);
@@ -65,6 +76,16 @@ public class GiftServiceImpl implements GiftService{
             }
             throw gle;
         }
+    }
+
+    private GiftTag getOrCreateTag(String tag) throws GiftListException {
+        Optional<GiftTag> tagOpt = giftTagsRepository.get(tag.toLowerCase().trim());
+        if(tagOpt.isPresent()){
+            return tagOpt.get();
+        }
+        GiftTag newTag= new GiftTag(tag);
+        giftTagsRepository.add(newTag);
+        return newTag;
     }
 
     @Override
@@ -170,5 +191,27 @@ public class GiftServiceImpl implements GiftService{
         Gift actualGift = giftRepository.get(giftId).orElseThrow(()-> new GiftListException("Can't add link : gift not found : "+giftId));
         actualGift.removeLink(link);
         return giftRepository.update(actualGift);
+    }
+
+    @Override
+    public Gift addTag(String giftId, String aTag) throws GiftListException {
+        Gift actualGift = giftRepository.get(giftId).orElseThrow(()-> new GiftListException("Can't add link : gift not found : "+giftId));
+        actualGift.addTag(getOrCreateTag(aTag));
+        return giftRepository.update(actualGift);
+    }
+
+    @Override
+    public Gift removeTag(String giftId, String tagToRemove) throws GiftListException {
+        Gift actualGift = giftRepository.get(giftId).orElseThrow(()-> new GiftListException("Can't add link : gift not found : "+giftId));
+        if(StringUtils.isBlank(tagToRemove) || StringUtils.isBlank(tagToRemove.trim())){
+            //Can't remove an empty tag
+            return actualGift;
+        }
+        Optional<GiftTag> tagOpt = giftTagsRepository.get(tagToRemove.trim().toLowerCase());
+        if(tagOpt.isPresent()){
+            actualGift.removeTag(tagOpt.get());
+            return giftRepository.update(actualGift);
+        }
+        return actualGift;
     }
 }

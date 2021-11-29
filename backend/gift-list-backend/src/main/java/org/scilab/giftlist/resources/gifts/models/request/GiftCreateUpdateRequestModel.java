@@ -12,6 +12,7 @@ public class GiftCreateUpdateRequestModel {
     private int rating;
     private String comment;
     private List<String> links;
+    private List<String> tags;
 
     public String getGiftId() {
         return giftId;
@@ -59,5 +60,13 @@ public class GiftCreateUpdateRequestModel {
 
     public void setRating(int rating) {
         this.rating = rating;
+    }
+
+    public List<String> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<String> tags) {
+        this.tags = tags;
     }
 }

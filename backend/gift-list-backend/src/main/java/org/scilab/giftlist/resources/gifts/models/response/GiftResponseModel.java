@@ -2,9 +2,11 @@ package org.scilab.giftlist.resources.gifts.models.response;
 
 import com.google.common.base.Strings;
 import org.scilab.giftlist.domain.models.list.Gift;
+import org.scilab.giftlist.domain.models.list.GiftTag;
 import org.scilab.giftlist.internal.misc.GLDateUtils;
 import org.scilab.giftlist.internal.misc.LinksUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class GiftResponseModel {
@@ -14,6 +16,7 @@ public class GiftResponseModel {
     private final String comment;
     private final int rating;
     private final List<String> links;
+    private final List<String> tags;
     private final String created;
     private final String lastUpdate;
     private String status;
@@ -29,6 +32,10 @@ public class GiftResponseModel {
         this.links = LinksUtils.toList(aGift.getLinks());
         this.created= GLDateUtils.formatDate(aGift.getCreationDate());
         this.lastUpdate=GLDateUtils.formatDate(aGift.getLastUpdateDate());
+        this.tags = new ArrayList<>();
+        for(GiftTag giftTag :aGift.getTags()){
+            this.tags.add(giftTag.getName());
+        }
     }
 
     public void setGenerousGiver(String generousGiver) {
@@ -85,5 +92,9 @@ public class GiftResponseModel {
 
     public String getGiftId() {
         return giftId;
+    }
+
+    public List<String> getTags() {
+        return tags;
     }
 }
