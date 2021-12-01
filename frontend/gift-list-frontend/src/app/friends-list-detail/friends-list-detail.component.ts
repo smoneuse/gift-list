@@ -22,6 +22,7 @@ export class FriendsListDetailComponent implements OnInit {
   itemsPerPage =10
   sortingParameter : string ="title"
   sortOrder : number =1
+  tagFilter : Set<string> = new Set()
   sortingFunction =this.compareGiftsByTitle.bind(this)
 
   constructor(private route: ActivatedRoute, private giftListService : GiftListService, private router : Router) { }
@@ -55,6 +56,26 @@ export class FriendsListDetailComponent implements OnInit {
           }
         }
       })
+  }
+
+  allGiftsTags() : Set<string> {
+    let result = new Set<string>()
+    for(let aGift of this.currentList.gifts){
+      for(let aTag of aGift.tags){
+        result.add(aTag)
+      }
+    }
+    return result
+  }
+
+  updateTagFilter(aTag : string){
+    if(this.tagFilter.has(aTag)){
+      this.tagFilter.delete(aTag)
+    }
+    else{
+      this.tagFilter.add(aTag)
+    }
+    this.reInitPagination()
   }
 
   prepareOffering(aGift : Gift){
@@ -216,9 +237,25 @@ export class FriendsListDetailComponent implements OnInit {
       this.sortingFunction=this.compareGiftByDate.bind(this)
     }
   }
+  filterByTag( fullList :Gift[] ) : Gift[]{
+    if(this.tagFilter.size===0){
+      return fullList
+    }
+    let filteredList :Gift[] =[]
+    for(let aGift of fullList){
+      for(let aTag of aGift.tags){
+        if(this.tagFilter.has(aTag)){
+          filteredList.push(aGift)
+          break;
+        }
+      }
+    }
+    return filteredList
+  }
 
   paginatedGifts(){
-    let allGifts=this.currentList.gifts.sort(this.sortingFunction)
+    let filteredList =this.filterByTag(this.currentList.gifts)
+    let allGifts=filteredList.sort(this.sortingFunction)
     let currentPageGifts : Gift[]=[]
     let start = (this.activePage-1)*this.itemsPerPage
     let end = ((this.activePage)*this.itemsPerPage)

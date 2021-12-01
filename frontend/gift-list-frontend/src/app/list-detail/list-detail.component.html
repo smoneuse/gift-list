@@ -94,7 +94,7 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-            <form class="form">
+            <form class="form" autocomplete="off">
                 <div class="form-floating mb-3">
                     <input [(ngModel)]="createdGift.title" type="text" class="form-control" name="giftTitle" placeholder="Nom du cadeau">
                     <label for="giftTitle">Nom du cadeau</label>
@@ -102,6 +102,19 @@
                 <div class="form-floating mb-3">
                     <input [(ngModel)]="createdGift.comment" type="text" class="form-control" name="giftComment" placeholder="Commentaire">
                     <label for="giftComment">Commentaire</label>
+                </div>
+                <div>
+                    <label for="tagDataList" class="form-label">Catégories</label>
+                    <div class="input-group mb-3">                    
+                        <input (keyup)="searchTags()" [(ngModel)]="currentTypedTag" class="form-control" list="tagOptions" name="currentTag" id="tagDataList" placeholder="Ajoutez une catégorie..." value="">
+                        <button (click)="addTag('')" class="btn btn-primary" type="button" id="button-addon2"><i class="bi bi-plus-lg"></i></button>
+                    </div>                              
+                    <datalist id="tagOptions">
+                        <option *ngFor="let tag of proposedTags" value="{{tag}}">
+                    </datalist>
+                </div>
+                <div *ngIf="createdGift.tags.length !==0" class="form-floating mb-3">
+                    <span *ngFor="let aTag of createdGift.tags" class="badge rounded-pill bg-info mx-1">#{{aTag}}&nbsp;<a style="cursor: pointer" (click)="removeTag(aTag)" ><i class="bi bi-x"></i></a></span>
                 </div>
                 <div class="mb-3">
                     <app-star-rating name="giftRating" class="float-end" [(rating)]="createdGift.rating" mode="edit" fontSize="1rem"></app-star-rating>

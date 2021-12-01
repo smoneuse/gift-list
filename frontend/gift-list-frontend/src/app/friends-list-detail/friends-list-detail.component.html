@@ -19,6 +19,21 @@
                         </li>
                     </ul>
                  </div>
+                 <div *ngIf="allGiftsTags().size !==0" class="dropdown ms-1">
+                    <button class="btn btn-outline-secondary btn-sm dropdown-toggle mt-1 pt-1" type="button" id="dropdownTagFilterButton" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-funnel-fill"></i>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownTagFilterButton">
+                        <li *ngFor="let aTag of allGiftsTags(); let i = index" style="cursor: pointer">
+                            <div class="form-check mx-1">
+                                <input class="form-check-input" type="checkbox" value="" [id]="'flexCheck'+i" (change)="updateTagFilter(aTag)">
+                                <label class="form-check-label" [for]="'flexCheck'+i">
+                                  {{aTag}}
+                                </label>
+                              </div>
+                        </li>                        
+                    </ul>
+              </div>
                 <div class="d-flex justify-content-between">
                   <div class="mb-0 pt-1">
                       <select class="form-select form-select-sm float-end" (change)="reInitPagination()" [(ngModel)]="itemsPerPage" aria-label=".form-select-sm example">
@@ -43,7 +58,10 @@
         <div *ngFor="let aGift of paginatedGifts()" class="card mt-3">
             <h5 class="card-header">{{aGift.title}}&nbsp;<span *ngIf="aGift.status==='AVAILABLE'" class="badge bg-primary">Disponible</span><span *ngIf="aGift.status==='RESERVED'" class="badge bg-secondary">Réservé</span><app-star-rating class="float-end" [(rating)]="aGift.rating" mode="view" fontSize="1rem"></app-star-rating></h5>
             <div class="card-body">
-              <p class="card-text"><small class="text-muted">{{aGift.comment}}</small></p>
+              <p *ngIf="aGift.comment !==''" class="card-text mb-1"><small class="text-muted">{{aGift.comment}}</small></p>
+              <div *ngIf="aGift.tags.length !==0" class="mb-1">
+                <span *ngFor="let aTag of aGift.tags" class="badge rounded-pill bg-info mx-1">#{{aTag}}</span>
+             </div>
               <div class="accordion" id="accordionLinks">
                 <div class="accordion-item">
                   <h2 class="accordion-header" [id]="'heading'+aGift.giftId">

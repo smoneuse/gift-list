@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Gift } from '../model/gift';
 import { GiftList } from '../model/giftList';
 import { GiftListService } from '../services/gift-list.service';
+import { TagsService } from '../services/tags/tags.service';
 
 @Component({
   selector: 'app-list-detail',
@@ -18,7 +19,9 @@ export class ListDetailComponent implements OnInit {
   currentFriend=""
   currentlink=""
   errorMessage=""
-  constructor(private route: ActivatedRoute, private giftListService : GiftListService, private router : Router) { }
+  currentTypedTag=""
+  proposedTags :string[]=[]
+  constructor(private route: ActivatedRoute, private giftListService : GiftListService,private tagService :TagsService, private router : Router) { }
 
   ngOnInit(): void {
     let identifier = this.route.snapshot.paramMap.get('listId')
@@ -56,6 +59,8 @@ export class ListDetailComponent implements OnInit {
   prepareGiftCreate(){
     this.errorMessage=""
     this.currentlink=""
+    this.currentTypedTag=""
+    this.proposedTags=[]
     this.createdGift=new Gift()
     this.createdGift.listId=this.listId
   }
@@ -126,6 +131,60 @@ export class ListDetailComponent implements OnInit {
     if(this.currentlink){
       this.createdGift.links.push(this.currentlink);
       this.currentlink=""
+    }
+  }
+
+  addTag(aTag : string){
+    if(aTag===""){
+      aTag=this.currentTypedTag
+    }
+    for(let existingTag of this.createdGift.tags){
+      if(existingTag===aTag.toLowerCase()){
+        this.currentTypedTag="";
+        return;
+      }
+    }
+    this.createdGift.tags.push(aTag.toLowerCase())
+    this.currentTypedTag="";
+    this.proposedTags=[]    
+  }
+
+  removeTag(aTag :string){
+    let tagList = []
+    for(let existingTag of this.createdGift.tags){
+      if(existingTag !== aTag.toLowerCase()){
+        tagList.push(existingTag)
+      }
+    }
+    this.createdGift.tags=tagList
+  }
+
+  searchTags(){
+    if(this.currentTypedTag.length>0){
+      console.log("Searching for tag "+this.currentTypedTag)
+      this.errorMessage="";
+      this.tagService.searchTags(this.currentTypedTag)
+        .subscribe({
+          next:(res)=>{
+            this.proposedTags=res
+          },
+          error:(err)=>{
+            if(err instanceof HttpErrorResponse){
+              if(err.status=== 500 || err.status === 400){
+                this.errorMessage="Problème lors du chargement des tags : "+err.error
+              }
+              else if (err.status===404){
+                this.errorMessage="Ce cadeau n'a pas été trouvé"
+              }
+              else if(err.status === 401 || err.status === 403){
+                this.router.navigate(['/login'])
+              }
+            }
+            else{
+              this.errorMessage="Une erreur est survenue lors de la recherche de tags :"+err.error
+            }
+          }
+        })
     }
   }
 

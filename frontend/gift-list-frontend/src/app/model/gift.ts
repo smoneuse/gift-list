@@ -4,7 +4,8 @@ export class Gift{
     title:string="";
     comment:string="";
     rating:number=0;
-    links:string[]=[]
+    links:string[]=[];
+    tags:string[]=[];
     created:string="";
     lastUpdate:string="";
     status:string="";

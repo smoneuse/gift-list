@@ -24,6 +24,7 @@ export class PaginateGiftsComponent implements OnInit {
   sortingParameter="title"
   sortingFunction=this.compareGiftsByTitle.bind(this)
   sortOrder=1
+  tagFilter :Set<string> = new Set()
 
   constructor(private giftListService : GiftListService, private router : Router) { 
   }
@@ -40,9 +41,27 @@ export class PaginateGiftsComponent implements OnInit {
       if(aGift.status ==="AVAILABLE"){
         resultingGifts.push(aGift)
       }
-    }        
+    }
+    resultingGifts= this.filterByTag(resultingGifts)
     return resultingGifts.sort(this.sortingFunction)
   }
+
+  filterByTag( fullList :Gift[] ) : Gift[]{
+    if(this.tagFilter.size===0){
+      return fullList
+    }
+    let filteredList :Gift[] =[]
+    for(let aGift of fullList){
+      for(let aTag of aGift.tags){
+        if(this.tagFilter.has(aTag)){
+          filteredList.push(aGift)
+          break;
+        }
+      }
+    }
+    return filteredList
+  }
+
   reInitPagination(){    
     this.activePage=1
   }
@@ -64,6 +83,26 @@ export class PaginateGiftsComponent implements OnInit {
 
   countPages(){
     return new Array(Math.ceil(this.availableGifts().length / this.itemsPerPage))
+  }
+
+  allGiftsTags() : Set<string> {
+    let result = new Set<string>()
+    for(let aGift of this.gList.gifts){
+      for(let aTag of aGift.tags){
+        result.add(aTag)
+      }
+    }
+    return result
+  }
+
+  updateTagFilter(aTag : string){
+    if(this.tagFilter.has(aTag)){
+      this.tagFilter.delete(aTag)
+    }
+    else{
+      this.tagFilter.add(aTag)
+    }
+    this.reInitPagination()
   }
 
   setActivePage(pageIndex:number, el: HTMLElement){
