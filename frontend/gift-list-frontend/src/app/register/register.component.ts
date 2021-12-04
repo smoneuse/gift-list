@@ -32,7 +32,8 @@ export class RegisterComponent implements OnInit {
       .subscribe({
         next: (res)=> {
           if(res.status==='SUCCESS'){
-            localStorage.setItem('token',btoa(this.registerUserData.login+':'+this.registerUserData.password))
+            localStorage.setItem('token',btoa(res.account+':'+this.registerUserData.password))
+            this.auth.loggedUser=res.account
             this.router.navigate(['/ownedLists'])
           }else if(res.status==='INVALID_DATA'){
             this.errorMessage="Enregistrement impossible. Veuillez renseigner les champs login et mot de passe."

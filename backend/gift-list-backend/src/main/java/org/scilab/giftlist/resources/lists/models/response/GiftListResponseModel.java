@@ -60,7 +60,7 @@ public class GiftListResponseModel {
             //Don't add already given gifts
             return;
         }
-        if(aGift.getGiver()!=null && aGift.getStatus().equals(GiftStatus.RESERVED.toString()) && !viewerLogin.equals(aGift.getGiver().getLogin())){
+        if(aGift.getGiver()!=null && aGift.getStatus().equals(GiftStatus.RESERVED.toString()) && !viewerLogin.equalsIgnoreCase(aGift.getGiver().getLogin())){
             //Don't add gifts reserved by another viewer
             return;
         }

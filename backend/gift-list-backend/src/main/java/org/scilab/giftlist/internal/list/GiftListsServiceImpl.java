@@ -42,7 +42,7 @@ public class GiftListsServiceImpl implements GiftListsService{
         AuthUser owner= authUserService.findAccount(ownerId).orElseThrow(()->new GiftListException("Can't create a list without an owner"));
         Specification<GiftList> sameOwnerSpec= giftListRepository.getSpecificationBuilder()
                 .of(GiftList.class)
-                .property("owner.login").equalTo(ownerId)
+                .property("owner.login").equalTo(ownerId).ignoringCase()
                 .build();
         if(giftListRepository.get(sameOwnerSpec).filter(aList-> aList.getTitle().equals(title)).count()>0){
             throw new GiftListException("A user can't have different lists with same title");
@@ -82,7 +82,7 @@ public class GiftListsServiceImpl implements GiftListsService{
         GiftList currentList = giftListRepository.get(listId).orElseThrow(()-> new GiftListException("The list to update could not be found"));
         Specification<GiftList> sameTitleSpec= giftListRepository.getSpecificationBuilder()
                 .of(GiftList.class)
-                .property("owner.login").equalTo(currentList.getOwner().getLogin())
+                .property("owner.login").equalTo(currentList.getOwner().getLogin()).ignoringCase()
                 .and().property("title").equalTo(newTitle)
                 .and().property("id").not().equalTo(listId)
                 .build();
@@ -105,7 +105,7 @@ public class GiftListsServiceImpl implements GiftListsService{
         if(Strings.isNullOrEmpty(userToCheck) || aList==null){
             return false;
         }
-        return aList.getOwner().getLogin().equals(userToCheck);
+        return aList.getOwner().getLogin().equalsIgnoreCase(userToCheck);
     }
 
     @Override
@@ -114,14 +114,14 @@ public class GiftListsServiceImpl implements GiftListsService{
             return false;
         }
         for(AuthUser aViewer : aList.getViewers()){
-            if(aViewer.getLogin().equals(userToCheck)){
+            if(aViewer.getLogin().equalsIgnoreCase(userToCheck)){
                 return true;
             }
         }
         //Check if it's a friend
         AuthUser listOwner =authUserService.findAccount(aList.getOwner().getLogin()).get();
         for(AuthUser aFriend : listOwner.getFriends()){
-            if(aFriend.getLogin().equals(userToCheck)){
+            if(aFriend.getLogin().equalsIgnoreCase(userToCheck)){
                 return true;
             }
         }

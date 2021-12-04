@@ -263,7 +263,7 @@ public class GiftResource {
             Response errorResponse = Response.status(400).entity("The gift is not RESERVED").build();
             throw new BadRequestException(errorResponse);
         }
-        if(!giftListsService.checkUserIsViewerOrFriend(currentUserLogin, requiredList) || !currentUserLogin.equals(requiredGift.getGiver().getLogin())){
+        if(!giftListsService.checkUserIsViewerOrFriend(currentUserLogin, requiredList) || !currentUserLogin.equalsIgnoreCase(requiredGift.getGiver().getLogin())){
             Response errorResponse = Response.status(400).entity("You are not viewer/friend or current giver of this list").build();
             throw new BadRequestException(errorResponse);
         }

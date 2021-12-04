@@ -10,7 +10,7 @@ export class TagsService {
 
   constructor(private http : HttpClient, @Inject('BASE_BACKEND_URL') private baseUrl : string) { }
 
-  searchTags(literal :string) {
-    return this.http.get<string[]>(this.searchTagUrl+"/"+literal);
+  searchTags(literal :string) {    
+    return this.http.get<string[]>(this.searchTagUrl+"/"+encodeURIComponent(literal));
   }
 }

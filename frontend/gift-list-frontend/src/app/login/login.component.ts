@@ -28,7 +28,9 @@ export class LoginComponent implements OnInit {
     this.auth.loginUser(this.loginUserData)
       .subscribe({
         next: (res)=> {
-          localStorage.setItem('token',btoa(this.loginUserData.login+':'+this.loginUserData.password))
+          console.log("REcieved "+res.account)
+          localStorage.setItem('token',btoa(res.account+':'+this.loginUserData.password))
+          this.auth.loggedUser=res.account
           this.router.navigate(['/ownedLists'])
         },
         error: (err)=> {

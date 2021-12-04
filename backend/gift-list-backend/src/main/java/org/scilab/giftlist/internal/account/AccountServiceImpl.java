@@ -49,7 +49,7 @@ public class AccountServiceImpl implements AccountService{
     public void addViewer(String viewerLogin, String giftListId) throws GiftListException {
         AuthUser viewer = authUserService.findAccount(viewerLogin).orElseThrow(()-> new GiftListException("Can't grant view permission : user not found :"+viewerLogin));
         GiftList giftList= giftListStringRepository.get(giftListId).orElseThrow(()->new GiftListException("Can't grant view permission :  list wasn't found"));
-        if(giftList.getOwner().getLogin().equals(viewerLogin)){
+        if(giftList.getOwner().getLogin().equalsIgnoreCase(viewerLogin)){
             throw new GiftListException("An owner can't grant view permission to himself");
         }
         try {
@@ -66,7 +66,7 @@ public class AccountServiceImpl implements AccountService{
     public void revokeViewer(String viewerLogin, String giftListId) throws GiftListException {
         AuthUser viewer = authUserService.findAccount(viewerLogin).orElseThrow(()-> new GiftListException("Can't revoke view permission : user not found :"+viewerLogin));
         GiftList giftList= giftListStringRepository.get(giftListId).orElseThrow(()->new GiftListException("Can't revoke view permission :  list wasn't found"));
-        if(giftList.getOwner().getLogin().equals(viewerLogin)){
+        if(giftList.getOwner().getLogin().equalsIgnoreCase(viewerLogin)){
             throw new GiftListException("An owner can't revoke view permission to himself");
         }
         logger.info("Removing user {} view permission on list {}", viewerLogin, giftListId);
@@ -80,7 +80,7 @@ public class AccountServiceImpl implements AccountService{
 
         Specification<AuthUser> friendFor= authUserStringRepository.getSpecificationBuilder()
                 .of(AuthUser.class)
-                .property("friends.login").equalTo(viewerLogin)
+                .property("friends.login").equalTo(viewerLogin).ignoringCase()
                 .build();
         Set<AuthUser> hasDeclaredViewerAsFriend=authUserStringRepository.get(friendFor).collect(Collectors.toSet());
         //Adding the lists owned by user with viewer declared as Friend
@@ -98,14 +98,14 @@ public class AccountServiceImpl implements AccountService{
 
     @Override
     public AuthUser addFriend(AuthUser user, String friendLogin) throws GiftListException {
-        AuthUser theFriend=authUserStringRepository.get(friendLogin).orElseThrow(()-> new GiftListException("Can't add friend, no user with login :"+friendLogin));
+        AuthUser theFriend=authUserService.findAccount(friendLogin).orElseThrow(()-> new GiftListException("Can't add friend, no user with login :"+friendLogin));
         user.addFriend(theFriend);
         return authUserStringRepository.update(user);
     }
 
     @Override
     public void removeFriend(AuthUser user, String friendLogin){
-        Optional<AuthUser> friendOpt= authUserStringRepository.get(friendLogin);
+        Optional<AuthUser> friendOpt= authUserService.findAccount(friendLogin);
         if(friendOpt.isPresent()){
             user.removeFriend(friendOpt.get());
             authUserStringRepository.update(user);

@@ -136,7 +136,7 @@ public class GiftServiceImpl implements GiftService{
         if(!actualGift.getStatus().equals(GiftStatus.RESERVED.toString())){
             throw new GiftListException("Can't release gift : status is not RESERVED");
         }
-        if(!actualGift.getGiver().getLogin().equals(giverLogin) && !giver.getRole().equals(GiftListRoles.ADMIN.toString())){
+        if(!actualGift.getGiver().getLogin().equalsIgnoreCase(giverLogin) && !giver.getRole().equals(GiftListRoles.ADMIN.toString())){
             throw new GiftListException("Can't release gift : Gift can only be released by the same giver or an admin");
         }
         actualGift.setStatus(GiftStatus.AVAILABLE);

@@ -223,10 +223,9 @@ public class GiftListResource {
         if(!giftListsService.checkUserIsOwner(currentUserLogin, requiredList)){
             //Current user is not owner
             //Only owner and a viewer can revoke itself
-            if(!currentUserLogin.equals(viewerId) || !giftListsService.checkUserIsViewerOrFriend(currentUserLogin, requiredList)){
+            if(!currentUserLogin.equalsIgnoreCase(viewerId) || !giftListsService.checkUserIsViewerOrFriend(currentUserLogin, requiredList)){
                 Response errorResponse = Response.status(400).entity("You have no permission on this list : Revocation by owner or viewer himself").build();
                 throw new BadRequestException(errorResponse);
-
             }
         }
         try {

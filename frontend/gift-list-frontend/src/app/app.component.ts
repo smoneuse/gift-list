@@ -20,4 +20,8 @@ export class AppComponent {
     this.auth.logout()
     this.router.navigate(['/welcome'])
   }
+
+  getLoggedUser(){
+    return this.auth.loggedUser
+  }
 }

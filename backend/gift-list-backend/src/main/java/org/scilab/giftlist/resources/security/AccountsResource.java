@@ -28,6 +28,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -149,11 +150,12 @@ public class AccountsResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/login")
     public CreateOrUpdateAccountResponse login(CreateAccountModel user){
-        if(authUserService.checkUserKnown(user.getLogin() )&& authUserService.validateUserPassword(user.getLogin(), user.getPassword()))
+        Optional<AuthUser> theUserOpt =authUserService.findAccount(user.getLogin());
+        if(theUserOpt.isPresent() && authUserService.validateUserPassword(user.getLogin(), user.getPassword()))
         {
-            AuthenticationToken token = new UsernamePasswordToken(user.getLogin(), user.getPassword());
+            AuthenticationToken token = new UsernamePasswordToken(theUserOpt.get().getLogin(), user.getPassword());
             securitySupport.login(token);
-            return new CreateOrUpdateAccountResponse(user.getLogin(), ResponseStatus.SUCCESS,null);
+            return new CreateOrUpdateAccountResponse(theUserOpt.get().getLogin(), ResponseStatus.SUCCESS,null);
         }
         else{
             throw new javax.ws.rs.NotAuthorizedException("Incorrect credentials");
@@ -231,7 +233,7 @@ public class AccountsResource {
     @RequiresRoles("userRole")
     public CreateOrUpdateAccountResponse userUpdate(UpdateAccountModel updatedUser){
         String currentUserLogin=securitySupport.getSimplePrincipalByName(Principals.IDENTITY).getValue();
-        if(!updatedUser.getLogin().equals(currentUserLogin)){
+        if(!updatedUser.getLogin().equalsIgnoreCase(currentUserLogin)){
             return new CreateOrUpdateAccountResponse(currentUserLogin, ResponseStatus.FAILURE,"Provided login do not match with you current session login");
         }
         CreateOrUpdateAccountResponse response = new CreateOrUpdateAccountResponse(currentUserLogin,ResponseStatus.SUCCESS,null);
